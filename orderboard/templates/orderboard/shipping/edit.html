@@ -1,0 +1,130 @@
+{% extends "orderboard/base.html" %}
+{% load humanize %}
+
+{% block title %}Edit Shipping{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h2>Edit Shipping</h2>
+        <p class="page-description">{{ order.title }}</p>
+    </div>
+</div>
+
+<!-- SHIPPING SUMMARY -->
+<section class="content-section">
+    <h3>Shipping Summary</h3>
+    <div class="responsive-table">
+        <table>
+            <tr>
+                <th>Order</th>
+                <td data-label="Order">
+                    <a href="{% url 'order_detail' order.id %}">{{ order.title }}</a>
+                </td>
+            </tr>
+            <tr>
+                <th>Customer</th>
+                <td data-label="Customer">{{ order.customer.name }}</td>
+            </tr>
+            <tr>
+                <th>Order Status</th>
+                <td data-label="Order Status">{{ order.get_status_display }}</td>
+            </tr>
+            <tr>
+                <th>Current Shipping Status</th>
+                <td data-label="Current Shipping Status">
+                    {% if shipping.status == 'not_shipped' %}
+                        <span class="status-badge status-not-shipped">Not Shipped</span>
+                    {% elif shipping.status == 'packaged' %}
+                        <span class="status-badge status-packaged">Packaged</span>
+                    {% elif shipping.status == 'shipped' %}
+                        <span class="status-badge status-shipped">Shipped</span>
+                    {% elif shipping.status == 'delivered' %}
+                        <span class="status-badge status-delivered">Delivered</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr class="{% if shipping.status != 'delivered' and order.deadline and order.deadline < now %}overdue{% endif %}">
+                <th>Deadline</th>
+                <td data-label="Deadline">
+                    {% if shipping.status == 'delivered' %}
+                        {{ order.deadline|date:"Y-m-d H:i"|default:"—" }}
+                        <span class="deadline-days status-delivered">
+                            (Delivered)
+                        </span>
+                    {% elif order.deadline %}
+                        {{ order.deadline|date:"Y-m-d H:i" }}
+                        <span class="deadline-days {% if order.deadline < now %}overdue-days{% else %}upcoming-days{% endif %}">
+                            ({% if order.deadline < now %}{{ order.deadline|timesince }} ago{% else %}in {{ order.deadline|timeuntil }}{% endif %})
+                        </span>
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+    </div>
+</section>
+
+<form method="post" class="form-container">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <section class="form-section error-section">
+            <h3>Form Errors</h3>
+            {{ form.non_field_errors }}
+        </section>
+    {% endif %}
+
+    <section class="form-section">
+        <h3>Shipping Information</h3>
+        <div class="form-field">
+            {{ form.status.label_tag }}
+            {{ form.status }}
+            {{ form.status.errors }}
+        </div>
+        <div class="form-field">
+            {{ form.tracking_id.label_tag }}
+            {{ form.tracking_id }}
+            {{ form.tracking_id.errors }}
+        </div>
+        <div class="form-field">
+            {{ form.recipient_name.label_tag }}
+            {{ form.recipient_name }}
+            {{ form.recipient_name.errors }}
+        </div>
+        <div class="form-field">
+            {{ form.address.label_tag }}
+            {{ form.address }}
+            {{ form.address.errors }}
+        </div>
+        <div class="form-field">
+            {{ form.postal_code.label_tag }}
+            {{ form.postal_code }}
+            {{ form.postal_code.errors }}
+        </div>
+        <div class="form-field">
+            {{ form.phone.label_tag }}
+            {{ form.phone }}
+            {{ form.phone.errors }}
+        </div>
+        <div class="form-field">
+            {{ form.shipped_at.label_tag }}
+            {{ form.shipped_at }}
+            {{ form.shipped_at.errors }}
+        </div>
+        <div class="form-field">
+            {{ form.delivered_at.label_tag }}
+            {{ form.delivered_at }}
+            {{ form.delivered_at.errors }}
+        </div>
+    </section>
+
+    <div class="form-actions">
+        <button type="submit">Save Changes</button>
+        <a class="button secondary-button" href="{% url 'order_detail' order.id %}">Cancel</a>
+    </div>
+</form>
+
+{% endblock %}

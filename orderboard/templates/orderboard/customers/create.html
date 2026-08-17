@@ -1,0 +1,451 @@
+{% extends "orderboard/base.html" %}
+
+{% block title %}Create Customer{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h2>Create Customer</h2>
+
+        <p class="page-description">
+            Add a new customer and their contact information.
+        </p>
+    </div>
+</div>
+
+
+<form method="post" class="form-container">
+
+    {% csrf_token %}
+
+
+    {% if form.non_field_errors or contact_formset.non_form_errors %}
+
+        <section class="form-section error-section">
+
+            <h3>Form Errors</h3>
+
+            {{ form.non_field_errors }}
+            {{ contact_formset.non_form_errors }}
+
+        </section>
+
+    {% endif %}
+
+
+    <!-- CUSTOMER INFORMATION -->
+
+    <section class="form-section">
+
+        <h3>Customer Information</h3>
+
+
+        <div class="form-field">
+
+            {{ form.name.label_tag }}
+            {{ form.name }}
+            {{ form.name.errors }}
+
+        </div>
+
+
+        <div class="form-field">
+
+            {{ form.phone.label_tag }}
+            {{ form.phone }}
+            {{ form.phone.errors }}
+
+        </div>
+
+
+        <div class="form-field">
+
+            {{ form.address.label_tag }}
+            {{ form.address }}
+            {{ form.address.errors }}
+
+        </div>
+
+
+        <div class="form-field">
+
+            {{ form.postal_code.label_tag }}
+            {{ form.postal_code }}
+            {{ form.postal_code.errors }}
+
+        </div>
+
+    </section>
+
+
+    <!-- CUSTOMER CONTACTS -->
+
+    <section class="form-section">
+
+        <h3>Customer Contacts</h3>
+
+        <p class="page-description">
+            Add the customer's accounts on Instagram, Telegram,
+            or other platforms.
+        </p>
+
+
+        {{ contact_formset.management_form }}
+
+
+        <div id="contact-forms">
+
+            {% for contact_form in contact_formset %}
+
+                <div class="form-subsection contact-form-row">
+
+                    <div class="contact-header">
+
+                        <h4>
+                            Contact
+                            <span class="contact-number">
+                                {{ forloop.counter }}
+                            </span>
+                        </h4>
+
+                        <button
+                            type="button"
+                            class="secondary-button remove-contact"
+                        >
+                            Remove
+                        </button>
+
+                    </div>
+
+
+                    {{ contact_form.id }}
+
+
+                    {% if contact_form.non_field_errors %}
+
+                        <div class="field-errors">
+
+                            {{ contact_form.non_field_errors }}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <div class="form-field">
+
+                        {{ contact_form.platform.label_tag }}
+                        {{ contact_form.platform }}
+                        {{ contact_form.platform.errors }}
+
+                    </div>
+
+
+                    <div class="form-field">
+
+                        {{ contact_form.username.label_tag }}
+                        {{ contact_form.username }}
+                        {{ contact_form.username.errors }}
+
+                    </div>
+
+
+                    {% if contact_form.DELETE %}
+
+                        <div style="display: none;">
+
+                            {{ contact_form.DELETE }}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+
+        <!-- ADD CONTACT -->
+
+        <div class="form-actions">
+
+            <button
+                type="button"
+                id="add-contact"
+                class="secondary-button"
+            >
+                + Add Contact
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- ACTIONS -->
+
+    <div class="form-actions">
+
+        <button type="submit">
+            Create Customer
+        </button>
+
+        <a
+            class="button secondary-button"
+            href="{% url 'customer_list' %}"
+        >
+            Cancel
+        </a>
+
+    </div>
+
+</form>
+
+
+<!-- EMPTY CONTACT TEMPLATE -->
+
+<template id="empty-contact-form">
+
+    <div class="form-subsection contact-form-row">
+
+        <div class="contact-header">
+
+            <h4>
+                Contact
+                <span class="contact-number"></span>
+            </h4>
+
+            <button
+                type="button"
+                class="secondary-button remove-contact"
+            >
+                Remove
+            </button>
+
+        </div>
+
+
+        <div class="form-field">
+
+            <label
+                for="id_{{ contact_formset.prefix }}-__prefix__-platform"
+            >
+                Platform
+            </label>
+
+            <input
+                type="text"
+                name="{{ contact_formset.prefix }}-__prefix__-platform"
+                id="id_{{ contact_formset.prefix }}-__prefix__-platform"
+                placeholder="Instagram, Telegram, etc."
+            >
+
+        </div>
+
+
+        <div class="form-field">
+
+            <label
+                for="id_{{ contact_formset.prefix }}-__prefix__-username"
+            >
+                Username
+            </label>
+
+            <input
+                type="text"
+                name="{{ contact_formset.prefix }}-__prefix__-username"
+                id="id_{{ contact_formset.prefix }}-__prefix__-username"
+                placeholder="Username or account"
+            >
+
+        </div>
+
+
+        <div style="display: none;">
+
+            <input
+                type="checkbox"
+                name="{{ contact_formset.prefix }}-__prefix__-DELETE"
+                id="id_{{ contact_formset.prefix }}-__prefix__-DELETE"
+            >
+
+        </div>
+
+    </div>
+
+</template>
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const container = document.getElementById("contact-forms");
+
+    const addButton = document.getElementById("add-contact");
+
+    const emptyTemplate =
+        document.getElementById("empty-contact-form");
+
+    const totalForms =
+        document.getElementById(
+            "id_{{ contact_formset.prefix }}-TOTAL_FORMS"
+        );
+
+
+    function updateContactNumbers() {
+
+        const contactRows =
+            container.querySelectorAll(".contact-form-row");
+
+        let visibleNumber = 1;
+
+        contactRows.forEach(function (row) {
+
+            if (row.style.display === "none") {
+                return;
+            }
+
+            const number =
+                row.querySelector(".contact-number");
+
+            if (number) {
+                number.textContent = visibleNumber;
+            }
+
+            visibleNumber++;
+
+        });
+
+    }
+
+
+    function attachRemoveButton(button) {
+
+        button.addEventListener("click", function () {
+
+            const row =
+                button.closest(".contact-form-row");
+
+            if (!row) {
+                return;
+            }
+
+
+            const deleteCheckbox =
+                row.querySelector(
+                    'input[name$="-DELETE"]'
+                );
+
+            const idField =
+                row.querySelector(
+                    'input[name$="-id"]'
+                );
+
+
+            /*
+             * Existing database contact:
+             *
+             * Mark it for deletion instead of removing
+             * the form completely.
+             */
+
+            if (
+                deleteCheckbox &&
+                idField &&
+                idField.value
+            ) {
+
+                deleteCheckbox.checked = true;
+
+                row.style.display = "none";
+
+            }
+
+            /*
+             * New contact:
+             *
+             * It does not exist in the database yet,
+             * so we can remove its form completely.
+             */
+
+            else {
+
+                row.remove();
+
+            }
+
+
+            updateContactNumbers();
+
+        });
+
+    }
+
+
+    function addContact() {
+
+        const formIndex =
+            parseInt(totalForms.value);
+
+
+        const html =
+            emptyTemplate.innerHTML.replace(
+                /__prefix__/g,
+                formIndex
+            );
+
+
+        container.insertAdjacentHTML(
+            "beforeend",
+            html
+        );
+
+
+        totalForms.value =
+            formIndex + 1;
+
+
+        const rows =
+            container.querySelectorAll(".contact-form-row");
+
+        const newRow =
+            rows[rows.length - 1];
+
+
+        const removeButton =
+            newRow.querySelector(".remove-contact");
+
+
+        attachRemoveButton(removeButton);
+
+        updateContactNumbers();
+
+    }
+
+
+    addButton.addEventListener(
+        "click",
+        addContact
+    );
+
+
+    document
+        .querySelectorAll(".remove-contact")
+        .forEach(function (button) {
+
+            attachRemoveButton(button);
+
+        });
+
+
+    updateContactNumbers();
+
+});
+
+</script>
+
+{% endblock %}

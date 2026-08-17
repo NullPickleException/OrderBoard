@@ -1,0 +1,303 @@
+{% extends "orderboard/base.html" %}
+{% load humanize %}
+
+{% block title %}{{ order.title }}{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h2>{{ order.title }}</h2>
+        <p class="page-description">Order #{{ order.id }}</p>
+    </div>
+    <div class="page-actions">
+        <a class="button" href="{% url 'order_edit' order.id %}">Edit Order</a>
+    </div>
+</div>
+
+<!-- ORDER INFORMATION -->
+<section class="content-section">
+    <h3>Order Information</h3>
+    <div class="responsive-table">
+        <table>
+            <tr>
+                <th>Status</th>
+                <td data-label="Status">{{ order.get_status_display }}</td>
+            </tr>
+            <tr>
+                <th>Customer</th>
+                <td data-label="Customer">
+                    <a href="{% url 'customer_detail' order.customer.id %}">{{ order.customer.name }}</a>
+                </td>
+            </tr>
+            <tr>
+                <th>Source</th>
+                <td data-label="Source">{{ order.source }}</td>
+            </tr>
+            <tr>
+                <th>Order Received</th>
+                <td data-label="Order Received">{{ order.order_received_at|date:"Y-m-d H:i"|default:"-" }}</td>
+            </tr>
+            <tr class="{% if order.shipping.status != 'delivered' and order.deadline and order.deadline < now %}overdue{% endif %}">
+                <th>Deadline</th>
+                <td data-label="Deadline">
+                    {% if order.shipping.status == 'delivered' %}
+                        {{ order.deadline|date:"Y-m-d H:i"|default:"—" }}
+                        <span class="deadline-days status-delivered">
+                            (Delivered)
+                        </span>
+                    {% elif order.deadline %}
+                        {{ order.deadline|date:"Y-m-d H:i" }}
+                        <span class="deadline-days {% if order.deadline < now %}overdue-days{% else %}upcoming-days{% endif %}">
+                            ({% if order.deadline < now %}{{ order.deadline|timesince }} ago{% else %}in {{ order.deadline|timeuntil }}{% endif %})
+                        </span>
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Shipping Status</th>
+                <td data-label="Shipping Status">
+                    {% if order.shipping.status == 'not_shipped' %}
+                        <span class="status-badge status-not-shipped">Not Shipped</span>
+                    {% elif order.shipping.status == 'packaged' %}
+                        <span class="status-badge status-packaged">Packaged</span>
+                    {% elif order.shipping.status == 'shipped' %}
+                        <span class="status-badge status-shipped">Shipped</span>
+                    {% elif order.shipping.status == 'delivered' %}
+                        <span class="status-badge status-delivered">Delivered</span>
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Created</th>
+                <td data-label="Created">{{ order.created_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            <tr>
+                <th>Last Updated</th>
+                <td data-label="Last Updated">{{ order.updated_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+        </table>
+    </div>
+</section>
+
+<!-- DESCRIPTION -->
+<section class="content-section">
+    <h3>Description</h3>
+    <div class="text-content">{{ order.description|default:"No description."|linebreaks }}</div>
+</section>
+
+<!-- FINANCIAL INFORMATION -->
+<section class="content-section">
+    <h3>Financial Information</h3>
+    <div class="responsive-table">
+        <table>
+            <tr>
+                <th>Total Price</th>
+                <td data-label="Total Price">{{ order.total_price|floatformat:0|intcomma }} RIAL</td>
+            </tr>
+            <tr>
+                <th>Project Cost</th>
+                <td data-label="Project Cost">
+                    {% if order.project_cost %}
+                        {{ order.project_cost|floatformat:0|intcomma }} RIAL
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Cost Details</th>
+                <td data-label="Cost Details">{{ order.cost_details|default:"-"|linebreaks }}</td>
+            </tr>
+            <tr>
+                <th>Payment Status</th>
+                <td data-label="Payment Status">{{ order.payment_status }}</td>
+            </tr>
+            <tr>
+                <th>Total Paid</th>
+                <td data-label="Total Paid">{{ order.total_paid|floatformat:0|intcomma }} RIAL</td>
+            </tr>
+            <tr>
+                <th>Remaining Balance</th>
+                <td data-label="Remaining Balance">{{ order.remaining_balance|floatformat:0|intcomma }} RIAL</td>
+            </tr>
+        </table>
+    </div>
+</section>
+
+<!-- PAYMENTS -->
+<section class="content-section">
+    <h3>Payments</h3>
+    <div class="responsive-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Amount</th>
+                    <th>Note</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                    <tr>
+                        <td data-label="Amount">{{ payment.paid_amount|floatformat:0|intcomma }} RIAL</td>
+                        <td data-label="Note">{{ payment.note|default:"-" }}</td>
+                        <td data-label="Date">{{ payment.paid_at|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3">No payments yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if order.remaining_balance > 0 %}
+        <div class="form-subsection">
+            <h4>Add Payment</h4>
+            <form method="post" action="{% url 'payment_create' order.id %}" class="form-container compact-form">
+                {% csrf_token %}
+                <div class="form-field">
+                    {{ payment_form.paid_amount.label_tag }}
+                    {{ payment_form.paid_amount }}
+                    {{ payment_form.paid_amount.errors }}
+                </div>
+                <div class="form-field">
+                    {{ payment_form.note.label_tag }}
+                    {{ payment_form.note }}
+                    {{ payment_form.note.errors }}
+                </div>
+                <button type="submit">Add Payment</button>
+            </form>
+        </div>
+    {% else %}
+        <p class="success-message"><strong>This order is fully paid.</strong></p>
+    {% endif %}
+</section>
+
+<!-- SHIPPING -->
+<section class="content-section">
+    <h3>Shipping</h3>
+    <form method="post" action="{% url 'shipping_edit' order.id %}" class="form-container">
+        {% csrf_token %}
+        <div class="form-field">
+            {{ shipping_form.status.label_tag }}
+            {{ shipping_form.status }}
+            {{ shipping_form.status.errors }}
+        </div>
+        <div class="form-field">
+            {{ shipping_form.tracking_id.label_tag }}
+            {{ shipping_form.tracking_id }}
+            {{ shipping_form.tracking_id.errors }}
+        </div>
+        <div class="form-field">
+            {{ shipping_form.recipient_name.label_tag }}
+            {{ shipping_form.recipient_name }}
+            {{ shipping_form.recipient_name.errors }}
+        </div>
+        <div class="form-field">
+            {{ shipping_form.address.label_tag }}
+            {{ shipping_form.address }}
+            {{ shipping_form.address.errors }}
+        </div>
+        <div class="form-field">
+            {{ shipping_form.postal_code.label_tag }}
+            {{ shipping_form.postal_code }}
+            {{ shipping_form.postal_code.errors }}
+        </div>
+        <div class="form-field">
+            {{ shipping_form.phone.label_tag }}
+            {{ shipping_form.phone }}
+            {{ shipping_form.phone.errors }}
+        </div>
+        <div class="form-field">
+            {{ shipping_form.shipped_at.label_tag }}
+            {{ shipping_form.shipped_at }}
+            {{ shipping_form.shipped_at.errors }}
+        </div>
+        <div class="form-field">
+            {{ shipping_form.delivered_at.label_tag }}
+            {{ shipping_form.delivered_at }}
+            {{ shipping_form.delivered_at.errors }}
+        </div>
+        <button type="submit">Save Shipping</button>
+    </form>
+</section>
+
+<!-- PHOTOS -->
+<section class="content-section">
+    <h3>Photos</h3>
+    <div class="photo-grid">
+        {% for photo in photos %}
+            <article class="photo-card">
+                <img src="{{ photo.image.url }}" alt="{{ photo.caption|default:'Order photo' }}">
+                {% if photo.caption %}<p>{{ photo.caption }}</p>{% endif %}
+                <form method="post" action="{% url 'photo_delete' photo.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="danger-button">Delete</button>
+                </form>
+            </article>
+        {% empty %}
+            <p>No photos uploaded.</p>
+        {% endfor %}
+    </div>
+    <div class="form-subsection">
+        <h4>Upload Photo</h4>
+        <form method="post" enctype="multipart/form-data" action="{% url 'photo_upload' order.id %}" class="form-container">
+            {% csrf_token %}
+            <div class="form-field">
+                {{ photo_form.image.label_tag }}
+                {{ photo_form.image }}
+                {{ photo_form.image.errors }}
+            </div>
+            <div class="form-field">
+                {{ photo_form.caption.label_tag }}
+                {{ photo_form.caption }}
+                {{ photo_form.caption.errors }}
+            </div>
+            <button type="submit">Upload Photo</button>
+        </form>
+    </div>
+</section>
+
+<!-- NOTES -->
+<section class="content-section">
+    <h3>Notes</h3>
+    <div class="text-content">{{ order.notes|default:"No notes."|linebreaks }}</div>
+</section>
+
+<!-- ACTIVITY -->
+<section class="content-section">
+    <h3>Activity</h3>
+    <div class="responsive-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Activity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for activity in activities %}
+                    <tr>
+                        <td data-label="Date">{{ activity.created_at|date:"Y-m-d H:i" }}</td>
+                        <td data-label="Type">{{ activity.get_activity_type_display }}</td>
+                        <td data-label="Activity">{{ activity.message }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="3">No activity yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "orderboard/base.html" %}
+
+{% block title %}Edit Payment{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h2>Edit Payment</h2>
+        <p class="page-description">{{ order.title }}</p>
+    </div>
+</div>
+
+<form method="post" class="form-container">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <section class="form-section error-section">
+            <h3>Form Errors</h3>
+            {{ form.non_field_errors }}
+        </section>
+    {% endif %}
+
+    <section class="form-section">
+        <h3>Payment Information</h3>
+        <div class="form-field">
+            {{ form.paid_amount.label_tag }}
+            {{ form.paid_amount }}
+            {{ form.paid_amount.errors }}
+        </div>
+        <div class="form-field">
+            {{ form.note.label_tag }}
+            {{ form.note }}
+            {{ form.note.errors }}
+        </div>
+    </section>
+
+    <div class="form-actions">
+        <button type="submit">Save Changes</button>
+        <a class="button secondary-button" href="{% url 'order_detail' order.id %}">Cancel</a>
+    </div>
+</form>
+
+{% endblock %}

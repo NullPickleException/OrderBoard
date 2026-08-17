@@ -1,0 +1,275 @@
+{% extends "orderboard/base.html" %}
+{% load humanize %}
+
+{% block title %}All Orders{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h2>All Orders</h2>
+        <p class="page-description">Browse and filter all orders.</p>
+    </div>
+    <div class="page-actions">
+        <a class="button" href="{% url 'order_create' %}">+ New Order</a>
+    </div>
+</div>
+
+<!-- FILTERS -->
+<section class="order-filters content-section">
+    <form method="get" class="filters-form">
+        
+        <!-- SEARCH -->
+        <div class="filter-search">
+            <label for="search">Search</label>
+            <input
+                type="text"
+                id="search"
+                name="search"
+                value="{{ search }}"
+                placeholder="Search by title, customer name, or phone..."
+            >
+        </div>
+
+        <!-- FILTERS GRID -->
+        <div class="filter-grid">
+            
+            <!-- STATUS -->
+            <div>
+                <label for="status">Order Status</label>
+                <select id="status" name="status">
+                    <option value="">All Statuses</option>
+                    {% for status_value, status_label in status_choices.choices %}
+                        <option value="{{ status_value }}" {% if selected_status == status_value %}selected{% endif %}>
+                            {{ status_label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- SHIPPING STATUS -->
+            <div>
+                <label for="shipping_status">Shipping Status</label>
+                <select id="shipping_status" name="shipping_status">
+                    <option value="">All Shipping</option>
+                    <option value="not_shipped" {% if selected_shipping_status == "not_shipped" %}selected{% endif %}>Not Shipped</option>
+                    <option value="packaged" {% if selected_shipping_status == "packaged" %}selected{% endif %}>Packaged</option>
+                    <option value="shipped" {% if selected_shipping_status == "shipped" %}selected{% endif %}>Shipped</option>
+                    <option value="delivered" {% if selected_shipping_status == "delivered" %}selected{% endif %}>Delivered</option>
+                </select>
+            </div>
+
+            <!-- SOURCE -->
+            <div>
+                <label for="source">Source</label>
+                <input
+                    type="text"
+                    id="source"
+                    name="source"
+                    value="{{ selected_source }}"
+                    placeholder="Filter by source..."
+                >
+            </div>
+
+            <!-- DEADLINE STATE -->
+            <div>
+                <label for="deadline_state">Deadline State</label>
+                <select id="deadline_state" name="deadline_state">
+                    <option value="">All Deadlines</option>
+                    <option value="overdue" {% if deadline_state == "overdue" %}selected{% endif %}>Overdue</option>
+                    <option value="upcoming" {% if deadline_state == "upcoming" %}selected{% endif %}>Upcoming</option>
+                    <option value="no_deadline" {% if deadline_state == "no_deadline" %}selected{% endif %}>No Deadline</option>
+                </select>
+            </div>
+
+            <!-- PAYMENT STATUS -->
+            <div>
+                <label for="payment_status">Payment Status</label>
+                <select id="payment_status" name="payment_status">
+                    <option value="">All Payments</option>
+                    <option value="not_paid" {% if payment_status == "not_paid" %}selected{% endif %}>Not Paid</option>
+                    <option value="partially_paid" {% if payment_status == "partially_paid" %}selected{% endif %}>Partially Paid</option>
+                    <option value="fully_paid" {% if payment_status == "fully_paid" %}selected{% endif %}>Fully Paid</option>
+                </select>
+            </div>
+
+            <!-- SORT -->
+            <div>
+                <label for="sort">Sort By</label>
+                <select id="sort" name="sort">
+                    <option value="newest" {% if sort == "newest" %}selected{% endif %}>Newest First</option>
+                    <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>Oldest First</option>
+                    <option value="deadline_soonest" {% if sort == "deadline_soonest" %}selected{% endif %}>Deadline (Soonest)</option>
+                    <option value="deadline_latest" {% if sort == "deadline_latest" %}selected{% endif %}>Deadline (Latest)</option>
+                    <option value="price_high" {% if sort == "price_high" %}selected{% endif %}>Price (High to Low)</option>
+                    <option value="price_low" {% if sort == "price_low" %}selected{% endif %}>Price (Low to High)</option>
+                </select>
+            </div>
+
+        </div>
+
+        <!-- DATE FILTERS -->
+        <div class="filter-date-section">
+            <div class="filter-section-title">Date Filters</div>
+            
+            <div class="date-filter-grid">
+                
+                <!-- ORDER RECEIVED DATE -->
+                <div class="date-filter-group">
+                    <span class="date-filter-label">Order Received</span>
+                    <div class="date-filter-inputs">
+                        <input
+                            type="date"
+                            name="received_from"
+                            value="{{ received_from }}"
+                        >
+                        <span>to</span>
+                        <input
+                            type="date"
+                            name="received_to"
+                            value="{{ received_to }}"
+                        >
+                    </div>
+                </div>
+
+                <!-- DEADLINE DATE -->
+                <div class="date-filter-group">
+                    <span class="date-filter-label">Deadline</span>
+                    <div class="date-filter-inputs">
+                        <input
+                            type="date"
+                            name="deadline_from"
+                            value="{{ deadline_from }}"
+                        >
+                        <span>to</span>
+                        <input
+                            type="date"
+                            name="deadline_to"
+                            value="{{ deadline_to }}"
+                        >
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- FILTER ACTIONS -->
+        <div class="filter-actions">
+            <button type="submit" class="button">Apply Filters</button>
+            <a href="{% url 'order_list' %}" class="button secondary">Clear Filters</a>
+        </div>
+
+    </form>
+</section>
+
+<!-- ORDERS TABLE -->
+<section class="content-section">
+    <div class="section-header">
+        <div>
+            <h3>Orders</h3>
+            <p class="section-description">
+                {{ orders|length }} order{{ orders|length|pluralize }} found
+            </p>
+        </div>
+    </div>
+
+    <div class="responsive-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Shipping</th>
+                    <th>Price</th>
+                    <th>Payment</th>
+                    <th>Deadline</th>
+                    <th>Received</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                    
+                    {% if order.shipping.status == 'delivered' %}
+                        <tr>
+                    {% elif order.deadline and order.deadline < now %}
+                        <tr class="overdue">
+                    {% else %}
+                        <tr>
+                    {% endif %}
+
+                        <td data-label="Order">
+                            <a href="{% url 'order_detail' order.id %}">
+                                {{ order.title }}
+                            </a>
+                        </td>
+
+                        <td data-label="Customer">
+                            <a href="{% url 'customer_detail' order.customer.id %}">
+                                {{ order.customer.name }}
+                            </a>
+                        </td>
+
+                        <td data-label="Status">
+                            {{ order.get_status_display }}
+                        </td>
+
+                        <td data-label="Shipping">
+                            {% if order.shipping.status == 'not_shipped' %}
+                                <span class="status-badge status-not-shipped">Not Shipped</span>
+                            {% elif order.shipping.status == 'packaged' %}
+                                <span class="status-badge status-packaged">Packaged</span>
+                            {% elif order.shipping.status == 'shipped' %}
+                                <span class="status-badge status-shipped">Shipped</span>
+                            {% elif order.shipping.status == 'delivered' %}
+                                <span class="status-badge status-delivered">Delivered</span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td data-label="Price">
+                            {{ order.total_price|floatformat:0|intcomma }} RIAL
+                        </td>
+
+                        <td data-label="Payment">
+                            {{ order.payment_status }}
+                        </td>
+
+                        <td data-label="Deadline">
+                            {% if order.shipping.status == 'delivered' %}
+                                {{ order.deadline|date:"Y-m-d"|default:"—" }}
+                                <span class="deadline-days status-delivered">
+                                    (Delivered)
+                                </span>
+                            {% elif order.deadline %}
+                                {{ order.deadline|date:"Y-m-d" }}
+                                <span class="deadline-days {% if order.deadline < now %}overdue-days{% else %}upcoming-days{% endif %}">
+                                    ({% if order.deadline < now %}{{ order.deadline|timesince }} ago{% else %}in {{ order.deadline|timeuntil }}{% endif %})
+                                </span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td data-label="Received">
+                            {{ order.order_received_at|date:"Y-m-d"|default:"—" }}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            No orders found matching your criteria.
+                        </td>
+                    </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}

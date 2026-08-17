@@ -1,0 +1,171 @@
+{% extends "orderboard/base.html" %}
+
+{% load static %}
+
+{% block title %}Print Shipping Labels{% endblock %}
+
+{% block content %}
+
+<div class="page-header no-print">
+    <div>
+        <h2>Print Shipping Labels</h2>
+        <p class="page-description">Select shipments and generate printable A4 shipping labels.</p>
+    </div>
+</div>
+
+<div class="printing-page">
+    <section class="printing-controls no-print">
+        <div class="printing-controls-header">
+            <div>
+                <h3>Print Settings</h3>
+                <p class="printing-help">Search and select the shipments you want to print.</p>
+            </div>
+            <div class="printing-actions">
+                <button type="button" id="select-all-button" class="button secondary">Select All</button>
+                <button type="button" id="clear-all-button" class="button secondary">Clear All</button>
+                <button type="button" id="print-button" class="button" disabled>Print Selected</button>
+                <button type="button" id="pdf-button" class="button" disabled>Export PDF</button>
+            </div>
+        </div>
+
+        <div class="printing-settings">
+            <div class="printing-setting">
+                <label for="sender-name">Sender Name</label>
+                <input type="text" id="sender-name" value="{{ sender_name }}" autocomplete="off">
+            </div>
+            <div class="printing-setting">
+                <label for="sender-phone">Sender Phone</label>
+                <input type="text" id="sender-phone" value="{{ sender_phone }}" dir="ltr" autocomplete="off">
+            </div>
+            <div class="printing-setting printing-setting-wide">
+                <label for="sender-address">Sender Address</label>
+                <input type="text" id="sender-address" value="{{ sender_address }}" autocomplete="off">
+            </div>
+            <div class="printing-setting">
+                <label for="labels-per-page">Labels Per A4 Page</label>
+                <select id="labels-per-page">
+                    <option value="4">4 Labels</option>
+                    <option value="5">5 Labels</option>
+                    <option value="6" selected>6 Labels</option>
+                    <option value="7">7 Labels</option>
+                    <option value="8">8 Labels</option>
+                </select>
+            </div>
+            <div class="printing-setting">
+                <label for="font-size-input">Font Size (px)</label>
+                <input type="number" id="font-size-input" value="10" min="6" max="20" step="0.5">
+            </div>
+            <div class="printing-setting">
+                <label for="layout-swap">Layout</label>
+                <select id="layout-swap">
+                    <option value="normal" selected>Sender + Image</option>
+                    <option value="swapped">Image + Sender</option>
+                    <option value="no-image">No Image</option>
+                </select>
+            </div>
+            <div class="printing-setting">
+                <label for="image-upload">Upload Image (Optional)</label>
+                <input type="file" id="image-upload" accept="image/*">
+            </div>
+            <div class="printing-setting">
+                <label for="orientation">Label Orientation</label>
+                <select id="orientation">
+                    <option value="portrait" selected>Portrait (Vertical)</option>
+                    <option value="landscape">Landscape (Horizontal)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="shipment-selection">
+            <div class="shipment-selection-header">
+                <h3>Shipments</h3>
+                <span id="selected-count">0 selected</span>
+            </div>
+
+            <div class="shipment-filters">
+                <div class="shipment-search">
+                    <label for="shipment-search">Search</label>
+                    <input type="search" id="shipment-search" placeholder="Order, customer, phone, tracking ID..." autocomplete="off">
+                </div>
+                <div class="shipment-status-filter">
+                    <label for="shipment-status">Shipping Status</label>
+                    <select id="shipment-status">
+                        <option value="active">Not Delivered</option>
+                        <option value="all">All</option>
+                        <option value="not_shipped">Not Shipped</option>
+                        <option value="packaged">Packaged</option>
+                        <option value="shipped">Shipped</option>
+                        <option value="delivered">Delivered</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="shipment-selection-actions">
+                <button type="button" id="select-visible-button" class="button secondary">Select Visible</button>
+                <button type="button" id="clear-visible-button" class="button secondary">Clear Visible</button>
+            </div>
+
+            {% if shipments %}
+                <div id="shipment-selection-list" class="shipment-selection-list">
+                    {% for shipment in shipments %}
+                        <label class="shipment-selection-item"
+                               data-search="{{ shipment.order.title }} {{ shipment.order.customer.name }} {{ shipment.phone }} {{ shipment.tracking_id }} {{ shipment.recipient_name }} {{ shipment.address }} {{ shipment.postal_code }}"
+                               data-status="{{ shipment.status }}">
+                            <input type="checkbox" class="shipment-checkbox" value="{{ shipment.id }}"
+                                   data-title="{{ shipment.order.title }}"
+                                   data-customer="{{ shipment.order.customer.name }}"
+                                   data-recipient="{{ shipment.recipient_name }}"
+                                   data-phone="{{ shipment.phone }}"
+                                   data-address="{{ shipment.address }}"
+                                   data-postal-code="{{ shipment.postal_code }}"
+                                   data-tracking-id="{{ shipment.tracking_id }}"
+                                   data-status="{{ shipment.status }}">
+                            <span class="shipment-selection-content">
+                                <span class="shipment-selection-main">
+                                    <strong>{{ shipment.order.title }}</strong>
+                                    <span>{{ shipment.recipient_name }}</span>
+                                </span>
+                                <span class="shipment-selection-details">
+                                    <span>{{ shipment.order.customer.name }}</span>
+                                    <span dir="ltr">{{ shipment.phone|default:"-" }}</span>
+                                    {% if shipment.tracking_id %}
+                                        <span dir="ltr">{{ shipment.tracking_id }}</span>
+                                    {% endif %}
+                                </span>
+                                <span class="shipment-status shipment-status-{{ shipment.status|lower }}">
+                                    {{ shipment.get_status_display }}
+                                </span>
+                            </span>
+                        </label>
+                    {% endfor %}
+                </div>
+                <div id="no-shipments-found" class="empty-state filtered-empty-state" style="display: none;">
+                    No shipments match your search or filter.
+                </div>
+            {% else %}
+                <p class="empty-state">No shipments are currently available.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="printing-preview-section">
+        <div class="preview-header no-print">
+            <div>
+                <h3>Print Preview</h3>
+                <p>Each A4 page contains the selected number of shipping labels.</p>
+            </div>
+        </div>
+        <div id="print-preview" class="print-preview" dir="rtl">
+            <div id="empty-preview" class="empty-preview no-print">
+                <p>Select one or more shipments to preview the shipping labels.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'orderboard/js/html2pdf.bundle.min.js' %}"></script>
+<script src="{% static 'orderboard/js/printing.js' %}"></script>
+{% endblock %}

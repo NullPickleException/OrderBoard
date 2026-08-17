@@ -1,0 +1,867 @@
+{% extends "orderboard/base.html" %}
+
+
+{% block title %}
+Export Data
+{% endblock %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+
+        <h2>
+            Export Data
+        </h2>
+
+        <p class="page-description">
+            Choose the data, filters, and columns you want to export.
+        </p>
+
+    </div>
+
+</div>
+
+
+<form
+    method="post"
+    action="{% url 'export_excel' %}"
+    class="form-container"
+    id="export-form"
+>
+
+    {% csrf_token %}
+
+
+    <!-- ================================================================
+         DATASETS
+         ================================================================ -->
+
+    <div class="form-section">
+
+        <h3>
+            What do you want to export?
+        </h3>
+
+        <p class="form-help">
+            Each selected type will be placed on its own Excel sheet.
+        </p>
+
+
+        <div class="export-checkbox-grid">
+
+            <label class="checkbox-option">
+
+                <input
+                    type="checkbox"
+                    name="datasets"
+                    value="orders"
+                    class="dataset-checkbox"
+                    data-target="orders-section"
+                    {% if selected_dataset == "orders" or not selected_dataset %}
+                        checked
+                    {% endif %}
+                >
+
+                <span>
+                    Orders
+                </span>
+
+            </label>
+
+
+            <label class="checkbox-option">
+
+                <input
+                    type="checkbox"
+                    name="datasets"
+                    value="customers"
+                    class="dataset-checkbox"
+                    data-target="customers-section"
+                    {% if selected_dataset == "customers" or not selected_dataset %}
+                        checked
+                    {% endif %}
+                >
+
+                <span>
+                    Customers
+                </span>
+
+            </label>
+
+
+            <label class="checkbox-option">
+
+                <input
+                    type="checkbox"
+                    name="datasets"
+                    value="payments"
+                    class="dataset-checkbox"
+                    data-target="payments-section"
+                    {% if selected_dataset == "payments" or not selected_dataset %}
+                        checked
+                    {% endif %}
+                >
+
+                <span>
+                    Payments
+                </span>
+
+            </label>
+
+
+            <label class="checkbox-option">
+
+                <input
+                    type="checkbox"
+                    name="datasets"
+                    value="shipping"
+                    class="dataset-checkbox"
+                    data-target="shipping-section"
+                    {% if selected_dataset == "shipping" or not selected_dataset %}
+                        checked
+                    {% endif %}
+                >
+
+                <span>
+                    Shipping
+                </span>
+
+            </label>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================================
+         ORDERS
+         ================================================================ -->
+
+    <section class="export-section" id="orders-section">
+
+        <div class="export-section-header">
+
+            <div>
+
+                <h3>
+                    Orders
+                </h3>
+
+                <p class="form-help">
+                    Filter which orders should be exported.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+            <div class="form-field">
+
+                <label>
+                    Search
+                </label>
+
+                <input
+                    type="text"
+                    name="order_search"
+                    placeholder="Order title, customer, phone..."
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Status
+                </label>
+
+                <select name="order_status">
+
+                    <option value="">
+                        Any status
+                    </option>
+
+                    {% for value, label in order_status_choices %}
+
+                        <option value="{{ value }}">
+                            {{ label }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Shipping Status
+                </label>
+
+                <select name="order_shipping_status">
+
+                    <option value="">
+                        Any shipping status
+                    </option>
+
+                    {% for value, label in shipping_status_choices %}
+
+                        <option value="{{ value }}">
+                            {{ label }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Source
+                </label>
+
+                <input
+                    type="text"
+                    name="order_source"
+                    placeholder="Instagram, Telegram..."
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Received From
+                </label>
+
+                <input
+                    type="date"
+                    name="order_received_from"
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Received To
+                </label>
+
+                <input
+                    type="date"
+                    name="order_received_to"
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Deadline From
+                </label>
+
+                <input
+                    type="date"
+                    name="order_deadline_from"
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Deadline To
+                </label>
+
+                <input
+                    type="date"
+                    name="order_deadline_to"
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Deadline State
+                </label>
+
+                <select name="order_deadline_state">
+
+                    <option value="">
+                        Any
+                    </option>
+
+                    <option value="overdue">
+                        Overdue
+                    </option>
+
+                    <option value="upcoming">
+                        Upcoming
+                    </option>
+
+                    <option value="no_deadline">
+                        No Deadline
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Payment Status
+                </label>
+
+                <select name="order_payment_status">
+
+                    <option value="">
+                        Any
+                    </option>
+
+                    <option value="not_paid">
+                        Not Paid
+                    </option>
+
+                    <option value="partially_paid">
+                        Partially Paid
+                    </option>
+
+                    <option value="fully_paid">
+                        Fully Paid
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div class="export-columns">
+
+            <h4>
+                Columns
+            </h4>
+
+
+            <div class="export-column-grid">
+
+                {% for field, label in export_fields.orders.fields.items %}
+
+                    <label class="checkbox-option">
+
+                        <input
+                            type="checkbox"
+                            name="order_fields"
+                            value="{{ field }}"
+                            checked
+                        >
+
+                        <span>
+                            {{ label }}
+                        </span>
+
+                    </label>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================================================
+         CUSTOMERS
+         ================================================================ -->
+
+    <section class="export-section" id="customers-section">
+
+        <div class="export-section-header">
+
+            <div>
+
+                <h3>
+                    Customers
+                </h3>
+
+                <p class="form-help">
+                    Filter which customers should be exported.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+            <div class="form-field">
+
+                <label>
+                    Search
+                </label>
+
+                <input
+                    type="text"
+                    name="customer_search"
+                    placeholder="Name, phone, address..."
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Has Orders
+                </label>
+
+                <select name="customer_has_orders">
+
+                    <option value="">
+                        Any
+                    </option>
+
+                    <option value="yes">
+                        Yes
+                    </option>
+
+                    <option value="no">
+                        No
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Has Phone
+                </label>
+
+                <select name="customer_has_phone">
+
+                    <option value="">
+                        Any
+                    </option>
+
+                    <option value="yes">
+                        Yes
+                    </option>
+
+                    <option value="no">
+                        No
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Has Address
+                </label>
+
+                <select name="customer_has_address">
+
+                    <option value="">
+                        Any
+                    </option>
+
+                    <option value="yes">
+                        Yes
+                    </option>
+
+                    <option value="no">
+                        No
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Has Contacts
+                </label>
+
+                <select name="customer_has_contacts">
+
+                    <option value="">
+                        Any
+                    </option>
+
+                    <option value="yes">
+                        Yes
+                    </option>
+
+                    <option value="no">
+                        No
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Created From
+                </label>
+
+                <input
+                    type="date"
+                    name="customer_created_from"
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Created To
+                </label>
+
+                <input
+                    type="date"
+                    name="customer_created_to"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="export-columns">
+
+            <h4>
+                Columns
+            </h4>
+
+
+            <div class="export-column-grid">
+
+                {% for field, label in export_fields.customers.fields.items %}
+
+                    <label class="checkbox-option">
+
+                        <input
+                            type="checkbox"
+                            name="customer_fields"
+                            value="{{ field }}"
+                            checked
+                        >
+
+                        <span>
+                            {{ label }}
+                        </span>
+
+                    </label>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================================================
+         PAYMENTS
+         ================================================================ -->
+
+    <section class="export-section" id="payments-section">
+
+        <div class="export-section-header">
+
+            <div>
+
+                <h3>
+                    Payments
+                </h3>
+
+                <p class="form-help">
+                    Filter payment records by customer, order, or date.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+            <div class="form-field">
+
+                <label>
+                    Search
+                </label>
+
+                <input
+                    type="text"
+                    name="payment_search"
+                    placeholder="Order, customer, note..."
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Date From
+                </label>
+
+                <input
+                    type="date"
+                    name="payment_date_from"
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Date To
+                </label>
+
+                <input
+                    type="date"
+                    name="payment_date_to"
+                >
+
+            </div>
+
+        </div>
+
+
+        <div class="export-columns">
+
+            <h4>
+                Columns
+            </h4>
+
+
+            <div class="export-column-grid">
+
+                {% for field, label in export_fields.payments.fields.items %}
+
+                    <label class="checkbox-option">
+
+                        <input
+                            type="checkbox"
+                            name="payment_fields"
+                            value="{{ field }}"
+                            checked
+                        >
+
+                        <span>
+                            {{ label }}
+                        </span>
+
+                    </label>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================================================
+         SHIPPING
+         ================================================================ -->
+
+    <section class="export-section" id="shipping-section">
+
+        <div class="export-section-header">
+
+            <div>
+
+                <h3>
+                    Shipping
+                </h3>
+
+                <p class="form-help">
+                    Filter shipping records by status and search.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-grid">
+
+
+            <div class="form-field">
+
+                <label>
+                    Search
+                </label>
+
+                <input
+                    type="text"
+                    name="shipping_search"
+                    placeholder="Order, customer, recipient, tracking..."
+                >
+
+            </div>
+
+
+            <div class="form-field">
+
+                <label>
+                    Status
+                </label>
+
+                <select name="shipping_status">
+
+                    <option value="">
+                        Any status
+                    </option>
+
+                    {% for value, label in shipping_status_choices %}
+
+                        <option value="{{ value }}">
+                            {{ label }}
+                        </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div class="export-columns">
+
+            <h4>
+                Columns
+            </h4>
+
+
+            <div class="export-column-grid">
+
+                {% for field, label in export_fields.shipping.fields.items %}
+
+                    <label class="checkbox-option">
+
+                        <input
+                            type="checkbox"
+                            name="shipping_fields"
+                            value="{{ field }}"
+                            checked
+                        >
+
+                        <span>
+                            {{ label }}
+                        </span>
+
+                    </label>
+
+                {% endfor %}
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- ================================================================
+         EXPORT BUTTON
+         ================================================================ -->
+
+    <div class="form-actions">
+
+        <button
+            type="submit"
+            class="button button-primary"
+        >
+            Export Excel File
+        </button>
+
+        <a
+            href="{% url 'dashboard' %}"
+            class="button button-secondary"
+        >
+            Cancel
+        </a>
+
+    </div>
+
+
+</form>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const datasetCheckboxes = document.querySelectorAll('.dataset-checkbox');
+        
+        function toggleSection(checkbox) {
+            const targetId = checkbox.getAttribute('data-target');
+            const targetSection = document.getElementById(targetId);
+            
+            if (targetSection) {
+                if (checkbox.checked) {
+                    targetSection.style.display = '';
+                } else {
+                    targetSection.style.display = 'none';
+                }
+            }
+        }
+        
+        // Initialize all sections based on checkbox state
+        datasetCheckboxes.forEach(checkbox => {
+            toggleSection(checkbox);
+            
+            // Add change event listener
+            checkbox.addEventListener('change', function() {
+                toggleSection(this);
+            });
+        });
+    });
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,133 @@
+{% extends "orderboard/base.html" %}
+{% load humanize %}
+
+{% block title %}Payments{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h2>Payments</h2>
+        <p class="page-description">View all payments received for orders.</p>
+    </div>
+</div>
+
+<!-- FILTERS -->
+<section class="order-filters content-section">
+    <form method="get" class="filters-form">
+        
+        <!-- SEARCH -->
+        <div class="filter-search">
+            <label for="search">Search</label>
+            <input
+                type="text"
+                id="search"
+                name="search"
+                value="{{ search }}"
+                placeholder="Search by order title, customer name, or note..."
+            >
+        </div>
+
+        <!-- FILTERS GRID -->
+        <div class="filter-grid">
+            
+            <!-- DATE FILTERS -->
+            <div>
+                <label for="date_from">From Date</label>
+                <input
+                    type="date"
+                    id="date_from"
+                    name="date_from"
+                    value="{{ date_from }}"
+                >
+            </div>
+
+            <div>
+                <label for="date_to">To Date</label>
+                <input
+                    type="date"
+                    id="date_to"
+                    name="date_to"
+                    value="{{ date_to }}"
+                >
+            </div>
+
+            <!-- SORT -->
+            <div>
+                <label for="sort">Sort By</label>
+                <select id="sort" name="sort">
+                    <option value="newest" {% if sort == "newest" %}selected{% endif %}>Newest First</option>
+                    <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>Oldest First</option>
+                    <option value="amount_high" {% if sort == "amount_high" %}selected{% endif %}>Amount (High to Low)</option>
+                    <option value="amount_low" {% if sort == "amount_low" %}selected{% endif %}>Amount (Low to High)</option>
+                </select>
+            </div>
+
+        </div>
+
+        <!-- FILTER ACTIONS -->
+        <div class="filter-actions">
+            <button type="submit" class="button">Apply Filters</button>
+            <a href="{% url 'payment_list' %}" class="button secondary">Clear Filters</a>
+        </div>
+
+    </form>
+</section>
+
+<!-- PAYMENTS TABLE -->
+<section class="content-section">
+    <div class="section-header">
+        <div>
+            <h3>Payments</h3>
+            <p class="section-description">
+                {{ payments|length }} payment{{ payments|length|pluralize }} found
+            </p>
+        </div>
+        <div>
+            <strong>Total: {{ total_payments|floatformat:0|intcomma }} RIAL</strong>
+        </div>
+    </div>
+
+    <div class="responsive-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Note</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                    <tr>
+                        <td data-label="Order">
+                            <a href="{% url 'order_detail' payment.order.id %}">{{ payment.order.title }}</a>
+                        </td>
+                        <td data-label="Customer">
+                            <a href="{% url 'customer_detail' payment.order.customer.id %}">{{ payment.order.customer.name }}</a>
+                        </td>
+                        <td data-label="Amount">{{ payment.paid_amount|floatformat:0|intcomma }} RIAL</td>
+                        <td data-label="Date">{{ payment.paid_at|date:"Y-m-d H:i" }}</td>
+                        <td data-label="Note">{{ payment.note|default:"-" }}</td>
+                        <td data-label="Actions">
+                            <a class="button" href="{% url 'payment_edit' payment.id %}">Edit</a>
+                            <form method="post" action="{% url 'payment_delete' payment.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this payment?');">
+                                {% csrf_token %}
+                                <button type="submit" class="danger-button">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-state">No payments found matching your criteria.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endblock %}

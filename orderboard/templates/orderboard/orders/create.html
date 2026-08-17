@@ -1,0 +1,244 @@
+{% extends "orderboard/base.html" %}
+
+{% block title %}Create Order{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h2>Create Order</h2>
+        <p class="page-description">Create a new order and assign it to a customer.</p>
+    </div>
+</div>
+
+<form method="post" class="form-container">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+        <section class="form-section error-section">
+            <h3>Form Errors</h3>
+            {{ form.non_field_errors }}
+        </section>
+    {% endif %}
+
+    <!-- CUSTOMER -->
+    <section class="form-section">
+        <h3>Customer</h3>
+        {{ form.customer }}
+
+        <!-- EXISTING CUSTOMER -->
+        <div id="existing-customer">
+            <div class="form-field">
+                <label for="customer-search">Search Customer</label>
+                <input type="search" id="customer-search" class="customer-search-input" placeholder="Search by name or phone..." autocomplete="off">
+            </div>
+            <div id="customer-results" class="customer-results" style="display: none;"></div>
+            <div id="selected-customer" class="selected-customer" style="display: none;">
+                <div>
+                    <strong>Selected Customer</strong>
+                    <span id="selected-customer-name"></span>
+                </div>
+                <button type="button" id="clear-customer" class="secondary-button">Change Customer</button>
+            </div>
+            {% if form.customer.errors %}
+                <div class="field-errors">{{ form.customer.errors }}</div>
+            {% endif %}
+        </div>
+
+        <!-- CREATE NEW CUSTOMER -->
+        <div class="checkbox-field">
+            {{ form.create_customer }}
+            {{ form.create_customer.label_tag }}
+        </div>
+        <div id="new-customer" class="new-customer-section" style="display: none;">
+            <h4>New Customer</h4>
+            <div class="form-field">
+                {{ form.new_customer_name.label_tag }}
+                {{ form.new_customer_name }}
+                {{ form.new_customer_name.errors }}
+            </div>
+            <div class="form-field">
+                {{ form.new_customer_phone.label_tag }}
+                {{ form.new_customer_phone }}
+                {{ form.new_customer_phone.errors }}
+            </div>
+            <div class="form-field">
+                {{ form.new_customer_address.label_tag }}
+                {{ form.new_customer_address }}
+                {{ form.new_customer_address.errors }}
+            </div>
+            <div class="form-field">
+                {{ form.new_customer_postal_code.label_tag }}
+                {{ form.new_customer_postal_code }}
+                {{ form.new_customer_postal_code.errors }}
+            </div>
+        </div>
+    </section>
+
+    <!-- ORDER INFORMATION -->
+    <section class="form-section">
+        <h3>Order Information</h3>
+        <div class="form-field">
+            {{ form.title.label_tag }}
+            {{ form.title }}
+            {{ form.title.errors }}
+        </div>
+        <div class="form-field">
+            {{ form.description.label_tag }}
+            {{ form.description }}
+            {{ form.description.errors }}
+        </div>
+        <div class="form-field">
+            {{ form.source.label_tag }}
+            {{ form.source }}
+            {{ form.source.errors }}
+        </div>
+        <div class="form-field">
+            {{ form.status.label_tag }}
+            {{ form.status }}
+            {{ form.status.errors }}
+        </div>
+        <div class="form-field">
+            {{ form.order_received_at.label_tag }}
+            {{ form.order_received_at }}
+            {{ form.order_received_at.errors }}
+        </div>
+        <div class="form-field">
+            {{ form.deadline.label_tag }}
+            {{ form.deadline }}
+            {{ form.deadline.errors }}
+        </div>
+    </section>
+
+    <!-- FINANCIAL INFORMATION -->
+    <section class="form-section">
+        <h3>Financial Information</h3>
+        <div class="form-field">
+            {{ form.total_price.label_tag }}
+            {{ form.total_price }}
+            {{ form.total_price.errors }}
+        </div>
+        <div class="form-field">
+            {{ form.project_cost.label_tag }}
+            {{ form.project_cost }}
+            {{ form.project_cost.errors }}
+        </div>
+        <div class="form-field">
+            {{ form.cost_details.label_tag }}
+            {{ form.cost_details }}
+            {{ form.cost_details.errors }}
+        </div>
+    </section>
+
+    <!-- NOTES -->
+    <section class="form-section">
+        <h3>Notes</h3>
+        <div class="form-field">
+            {{ form.notes.label_tag }}
+            {{ form.notes }}
+            {{ form.notes.errors }}
+        </div>
+    </section>
+
+    <!-- ACTIONS -->
+    <div class="form-actions">
+        <button type="submit">Create Order</button>
+        <a class="button secondary-button" href="{% url 'order_list' %}">Cancel</a>
+    </div>
+</form>
+
+<!-- CUSTOMER SEARCH JAVASCRIPT -->
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const customerSearch = document.getElementById("customer-search");
+    const customerResults = document.getElementById("customer-results");
+    const selectedCustomer = document.getElementById("selected-customer");
+    const selectedCustomerName = document.getElementById("selected-customer-name");
+    const clearCustomerButton = document.getElementById("clear-customer");
+    const customerField = document.getElementById("id_customer");
+    const createCustomerCheckbox = document.getElementById("id_create_customer");
+    const existingCustomer = document.getElementById("existing-customer");
+    const newCustomer = document.getElementById("new-customer");
+
+    if (!customerSearch || !customerField) return;
+
+    let searchTimeout = null;
+
+    customerSearch.addEventListener("input", function () {
+        const query = this.value.trim();
+        clearTimeout(searchTimeout);
+        if (query.length < 2) {
+            customerResults.innerHTML = "";
+            customerResults.style.display = "none";
+            return;
+        }
+        searchTimeout = setTimeout(function () {
+            fetch("{% url 'customer_search' %}?q=" + encodeURIComponent(query), {
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            })
+            .then(function (response) {
+                if (!response.ok) throw new Error("Customer search failed.");
+                return response.json();
+            })
+            .then(function (customers) {
+                customerResults.innerHTML = "";
+                if (customers.length === 0) {
+                    const message = document.createElement("p");
+                    message.className = "no-results";
+                    message.textContent = "No customers found.";
+                    customerResults.appendChild(message);
+                    customerResults.style.display = "block";
+                    return;
+                }
+                customers.forEach(function (customer) {
+                    const result = document.createElement("button");
+                    result.type = "button";
+                    result.className = "customer-result";
+                    result.textContent = customer.phone ? customer.name + " — " + customer.phone : customer.name;
+                    result.addEventListener("click", function () { selectCustomer(customer); });
+                    customerResults.appendChild(result);
+                });
+                customerResults.style.display = "block";
+            })
+            .catch(function (error) {
+                console.error(error);
+                customerResults.innerHTML = '<p class="no-results">Unable to search customers.</p>';
+                customerResults.style.display = "block";
+            });
+        }, 300);
+    });
+
+    function selectCustomer(customer) {
+        customerField.value = customer.id;
+        selectedCustomerName.textContent = customer.phone ? customer.name + " — " + customer.phone : customer.name;
+        selectedCustomer.style.display = "flex";
+        customerResults.style.display = "none";
+        customerSearch.style.display = "none";
+        customerSearch.value = "";
+    }
+
+    clearCustomerButton.addEventListener("click", function () {
+        customerField.value = "";
+        selectedCustomer.style.display = "none";
+        customerSearch.style.display = "block";
+        customerSearch.value = "";
+        customerSearch.focus();
+    });
+
+    function updateCustomerMode() {
+        if (createCustomerCheckbox.checked) {
+            existingCustomer.style.display = "none";
+            newCustomer.style.display = "block";
+            customerField.value = "";
+        } else {
+            existingCustomer.style.display = "block";
+            newCustomer.style.display = "none";
+        }
+    }
+
+    createCustomerCheckbox.addEventListener("change", updateCustomerMode);
+    updateCustomerMode();
+});
+</script>
+
+{% endblock %}
