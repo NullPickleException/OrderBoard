@@ -9,11 +9,13 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
+
 # =============================================================================
 # BASE
 # =============================================================================
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 # =============================================================================
 # SECURITY
@@ -24,12 +26,18 @@ SECRET_KEY = os.environ.get(
     "django-insecure-sh@kq%y4av7+=2&50pps3cjv4g__hhd*h%kjznh9q22^3x%tit"
 )
 
-DEBUG = os.environ.get("DJANGO_DEBUG", "True").lower() == "true"
+DEBUG = os.environ.get(
+    "DJANGO_DEBUG",
+    "True"
+).lower() == "true"
 
+# Accept requests regardless of which server IP/hostname is being used.
+# You can restrict this later through DJANGO_ALLOWED_HOSTS.
 ALLOWED_HOSTS = os.environ.get(
     "DJANGO_ALLOWED_HOSTS",
-    "localhost,127.0.0.1"
+    "*"
 ).split(",")
+
 
 # =============================================================================
 # APPLICATIONS
@@ -42,11 +50,12 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    'django.contrib.humanize',
-    
+    "django.contrib.humanize",
+
     # OrderBoard
     "orderboard",
 ]
+
 
 # =============================================================================
 # MIDDLEWARE
@@ -54,7 +63,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # For static files in production
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -63,11 +73,13 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+
 # =============================================================================
 # URLS
 # =============================================================================
 
 ROOT_URLCONF = "config.urls"
+
 
 # =============================================================================
 # TEMPLATES
@@ -88,14 +100,16 @@ TEMPLATES = [
     },
 ]
 
+
 # =============================================================================
 # WSGI
 # =============================================================================
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+
 # =============================================================================
-# DATABASE (SQLite - keep as is)
+# DATABASE (SQLite)
 # =============================================================================
 
 DATABASES = {
@@ -104,6 +118,7 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
 
 # =============================================================================
 # PASSWORD VALIDATION
@@ -136,49 +151,73 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 # =============================================================================
 # INTERNATIONALIZATION
 # =============================================================================
 
 LANGUAGE_CODE = "en-us"
+
 TIME_ZONE = "UTC"
+
 USE_I18N = True
+
 USE_TZ = True
+
 
 # =============================================================================
 # STATIC FILES
 # =============================================================================
 
 STATIC_URL = "static/"
+
 STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+STATICFILES_STORAGE = (
+    "whitenoise.storage.CompressedManifestStaticFilesStorage"
+)
+
 
 # =============================================================================
-# MEDIA FILES (for uploaded photos)
+# MEDIA FILES
 # =============================================================================
 
 MEDIA_URL = "media/"
+
 MEDIA_ROOT = BASE_DIR / "media"
+
 
 # =============================================================================
 # AUTHENTICATION
 # =============================================================================
 
 LOGIN_URL = "/accounts/login/"
+
 LOGIN_REDIRECT_URL = "/"
+
 LOGOUT_REDIRECT_URL = "/accounts/login/"
 
+
 # =============================================================================
-# SECURITY SETTINGS (Production only)
+# SECURITY SETTINGS
 # =============================================================================
 
 if not DEBUG:
+
     SECURE_SSL_REDIRECT = True
+
     SESSION_COOKIE_SECURE = True
+
     CSRF_COOKIE_SECURE = True
+
     SECURE_BROWSER_XSS_FILTER = True
+
     SECURE_CONTENT_TYPE_NOSNIFF = True
+
     X_FRAME_OPTIONS = "DENY"
+
     SECURE_HSTS_SECONDS = 31536000
+
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
     SECURE_HSTS_PRELOAD = True
