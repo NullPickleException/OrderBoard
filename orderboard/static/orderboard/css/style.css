@@ -155,7 +155,7 @@ textarea {
     flex-shrink: 0;
 }
 
-.main-nav>a,
+.main-nav > a,
 .nav-dropdown-btn,
 .theme-toggle {
     display: inline-flex;
@@ -177,7 +177,7 @@ textarea {
     transition: background-color 0.15s ease, color 0.15s ease;
 }
 
-.main-nav>a:hover,
+.main-nav > a:hover,
 .nav-dropdown-btn:hover,
 .theme-toggle:hover {
     background: var(--header-hover);
@@ -214,7 +214,7 @@ textarea {
 }
 
 /* Show when open */
-.nav-dropdown.open>.nav-dropdown-content {
+.nav-dropdown.open > .nav-dropdown-content {
     display: flex;
     flex-direction: column;
     gap: 3px;
@@ -371,6 +371,7 @@ section {
     transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
     width: 100%;
     min-width: 0;
+    overflow: hidden;
 }
 
 .dashboard-card:hover {
@@ -385,6 +386,7 @@ section {
     color: var(--text-secondary);
     font-size: 13px;
     font-weight: 600;
+    line-height: 1.3;
 }
 
 .big-number {
@@ -392,8 +394,9 @@ section {
     color: var(--text-heading);
     font-size: 30px;
     font-weight: 800;
-    line-height: 1;
+    line-height: 1.1;
     word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .card-link {
@@ -787,7 +790,7 @@ button.warning:hover {
     gap: 14px;
 }
 
-.filter-grid>div {
+.filter-grid > div {
     min-width: 0;
 }
 
@@ -1141,7 +1144,7 @@ button.warning:hover {
         gap: 2px;
     }
 
-    .main-nav>a,
+    .main-nav > a,
     .nav-dropdown-btn,
     .theme-toggle {
         padding-left: 8px;
@@ -1200,13 +1203,13 @@ button.warning:hover {
         flex-shrink: 0;
     }
 
-    .main-nav>a,
+    .main-nav > a,
     .nav-dropdown-btn,
     .theme-toggle {
         width: 100%;
-        height: 40px;
-        min-height: 40px;
-        padding: 8px 5px;
+        height: 42px;
+        min-height: 42px;
+        padding: 8px 6px;
         background: rgba(255, 255, 255, 0.06);
         text-align: center;
         font-size: 13px;
@@ -1215,7 +1218,7 @@ button.warning:hover {
         text-overflow: ellipsis;
     }
 
-    .main-nav>a:hover,
+    .main-nav > a:hover,
     .nav-dropdown-btn:hover,
     .theme-toggle:hover {
         background: rgba(255, 255, 255, 0.12);
@@ -1237,7 +1240,7 @@ button.warning:hover {
         box-shadow: none;
     }
 
-    .nav-dropdown.open>.nav-dropdown-content {
+    .nav-dropdown.open > .nav-dropdown-content {
         display: flex;
         flex-direction: column;
     }
@@ -1280,21 +1283,30 @@ button.warning:hover {
         overflow-x: hidden;
     }
 
-    /* FIXED: Dashboard cards now stack in 2 columns */
+    /* FIXED: Dashboard cards - 2 columns, no overflow */
     .dashboard-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
         width: 100%;
     }
 
     .dashboard-card {
-        padding: 14px;
+        padding: 14px 12px;
         width: 100%;
         min-width: 0;
     }
 
+    .dashboard-card h3 {
+        font-size: 12px;
+    }
+
     .big-number {
-        font-size: 26px;
+        font-size: 24px;
+        margin: 8px 0 6px;
+    }
+
+    .card-link {
+        font-size: 11px;
     }
 
     .responsive-table {
@@ -1317,7 +1329,7 @@ button.warning:hover {
     select,
     textarea {
         max-width: none;
-        font-size: 16px;
+        font-size: 16px; /* prevents iOS zoom */
     }
 
     button,
@@ -1378,24 +1390,24 @@ button.warning:hover {
 
     /* FIXED: Single column on very small phones */
     .dashboard-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: 8px;
     }
 
     .dashboard-card {
-        padding: 12px;
+        padding: 14px 12px;
     }
 
     .dashboard-card h3 {
-        font-size: 11px;
+        font-size: 12px;
     }
 
     .big-number {
-        font-size: 23px;
+        font-size: 26px;
     }
 
     .card-link {
-        font-size: 11px;
+        font-size: 12px;
     }
 
     .photo-grid {
@@ -1416,17 +1428,17 @@ button.warning:hover {
     }
 
     .main-nav {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 4px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 5px;
     }
 
-    .main-nav>a,
+    .main-nav > a,
     .nav-dropdown-btn,
     .theme-toggle {
-        font-size: 11px;
+        font-size: 12px;
         padding: 6px 4px;
-        height: 36px;
-        min-height: 36px;
+        height: 40px;
+        min-height: 40px;
     }
 }
 
@@ -1436,7 +1448,7 @@ button.warning:hover {
 
 @media (max-width: 350px) {
     .dashboard-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
     .main-nav {
@@ -1802,7 +1814,6 @@ button.warning:hover {
     font-family: Tahoma, Arial, sans-serif;
     gap: calc(1.5mm * var(--label-scale));
     color: #000000;
-    /* base black */
 }
 
 /* Force pure black text on everything inside the label */
@@ -1957,7 +1968,6 @@ button.warning:hover {
     max-height: calc(15mm * var(--label-scale));
     overflow: hidden;
     color: #000000 !important;
-    /* ← this is the key fix */
 }
 
 /* Responsive for printing controls */
@@ -2301,7 +2311,7 @@ button.warning:hover {
     left: 0;
     min-width: 210px;
     padding: 5px;
-    background: var(--bg-surface); /* solid surface color */
+    background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: 8px;
     box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
@@ -2391,6 +2401,7 @@ button.warning:hover {
         width: 100%;
         justify-content: center;
         background: rgba(255, 255, 255, 0.06);
+        height: 42px;
     }
 
     .account-button:hover {
@@ -2402,6 +2413,7 @@ button.warning:hover {
         width: 100%;
         margin-top: 4px;
         box-shadow: none;
+        background: var(--bg-surface);
     }
 
     .account-dropdown-content a,
@@ -2410,70 +2422,10 @@ button.warning:hover {
     }
 }
 
-/* --------------------------------------------------------------------------
-   Main navigation
-   -------------------------------------------------------------------------- */
-
-.main-nav {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    margin-left: auto;
-}
-
-/* Mobile adjustments for account */
-@media (max-width: 700px) {
-    .header-account {
-        margin-left: 0;
-        width: 100%;
-    }
-
-    .account-dropdown {
-        width: 100%;
-    }
-
-    .account-button {
-        width: 100%;
-        justify-content: center;
-        background: rgba(255, 255, 255, 0.06);
-    }
-
-    .account-button:hover {
-        background: rgba(255, 255, 255, 0.12);
-    }
-
-    .account-dropdown-content {
-        position: static;
-        width: 100%;
-        margin-top: 4px;
-        background-color: #ffffff !important;
-        background: #ffffff !important;
-    }
-
-    [data-theme="dark"] .account-dropdown-content {
-        background-color: #1e293b !important;
-        background: #1e293b !important;
-    }
-
-    .account-dropdown-content a {
-        text-align: center;
-        color: #1e293b !important;
-    }
-
-    [data-theme="dark"] .account-dropdown-content a {
-        color: #e2e8f0 !important;
-    }
-
-    .account-logout-button {
-        text-align: center;
-    }
-}
-
 /* ==========================================================================
-   EXPORT PAGE STYLES - Theme-aware (Fixed to match OrderBoard theme)
+   EXPORT PAGE STYLES - Theme-aware
    ========================================================================== */
 
-/* Export Checkbox Grid */
 .export-checkbox-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -2481,7 +2433,6 @@ button.warning:hover {
     margin-top: 1rem;
 }
 
-/* Checkbox Option */
 .checkbox-option {
     display: flex;
     align-items: center;
@@ -2512,7 +2463,6 @@ button.warning:hover {
     font-weight: 500;
 }
 
-/* Export Section */
 .export-section {
     margin-top: 1.5rem;
     padding: 1.5rem;
@@ -2540,7 +2490,6 @@ button.warning:hover {
     margin: 0;
 }
 
-/* Export Columns */
 .export-columns {
     margin-top: 1.5rem;
     padding-top: 1.5rem;
@@ -2566,14 +2515,12 @@ button.warning:hover {
     font-size: 0.813rem;
 }
 
-/* Form Grid */
 .form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 1rem;
 }
 
-/* Form Field */
 .form-field {
     display: flex;
     flex-direction: column;
@@ -2624,14 +2571,12 @@ button.warning:hover {
     color: var(--text-main);
 }
 
-/* Form Help */
 .form-help {
     font-size: 0.813rem;
     color: var(--text-secondary);
     margin-top: 0.25rem;
 }
 
-/* Dark Mode Specific Adjustments */
 [data-theme="dark"] .checkbox-option {
     background-color: var(--bg-surface);
     border-color: var(--border);
@@ -2663,7 +2608,6 @@ button.warning:hover {
     color: var(--text-muted);
 }
 
-/* Form Actions */
 .form-actions {
     display: flex;
     align-items: center;
@@ -2673,7 +2617,6 @@ button.warning:hover {
     border-top: 1px solid var(--border);
 }
 
-/* Form Section (for the initial dataset selection) */
 .form-section {
     margin-bottom: 1rem;
 }
@@ -2685,7 +2628,6 @@ button.warning:hover {
     margin-bottom: 0.25rem;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
     .form-grid {
         grid-template-columns: 1fr;
