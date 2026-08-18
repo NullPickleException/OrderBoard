@@ -21,6 +21,8 @@ body {
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-x: hidden;
+    width: 100%;
 }
 
 a {
@@ -263,6 +265,7 @@ textarea {
     max-width: 1400px;
     margin: 0 auto;
     padding: 32px 24px 60px;
+    overflow-x: hidden;
 }
 
 /* ==========================================================================
@@ -347,7 +350,7 @@ section {
 }
 
 /* ==========================================================================
-   DASHBOARD
+   DASHBOARD - FIXED FOR MOBILE
    ========================================================================== */
 
 .dashboard-grid {
@@ -355,6 +358,7 @@ section {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 14px;
     margin-bottom: 24px;
+    width: 100%;
 }
 
 .dashboard-card {
@@ -365,6 +369,8 @@ section {
     border-radius: 10px;
     box-shadow: var(--shadow);
     transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+    width: 100%;
+    min-width: 0;
 }
 
 .dashboard-card:hover {
@@ -387,6 +393,7 @@ section {
     font-size: 30px;
     font-weight: 800;
     line-height: 1;
+    word-break: break-word;
 }
 
 .card-link {
@@ -449,6 +456,8 @@ section {
 
 .responsive-table table {
     border: 0;
+    width: 100%;
+    min-width: 620px;
 }
 
 table {
@@ -1155,7 +1164,7 @@ button.warning:hover {
 }
 
 /* ==========================================================================
-   MOBILE
+   MOBILE - FIXED
    ========================================================================== */
 
 @media (max-width: 700px) {
@@ -1188,6 +1197,7 @@ button.warning:hover {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 6px;
+        flex-shrink: 0;
     }
 
     .main-nav>a,
@@ -1200,6 +1210,9 @@ button.warning:hover {
         background: rgba(255, 255, 255, 0.06);
         text-align: center;
         font-size: 13px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .main-nav>a:hover,
@@ -1234,6 +1247,7 @@ button.warning:hover {
         color: var(--text-main);
         justify-content: center;
         text-align: center;
+        white-space: nowrap;
     }
 
     .nav-dropdown-content a:hover {
@@ -1247,6 +1261,7 @@ button.warning:hover {
 
     .main-content {
         padding: 20px 12px 40px;
+        overflow-x: hidden;
     }
 
     .page-header {
@@ -1262,15 +1277,20 @@ button.warning:hover {
     section {
         padding: 16px;
         margin-bottom: 18px;
+        overflow-x: hidden;
     }
 
+    /* FIXED: Dashboard cards now stack in 2 columns */
     .dashboard-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, 1fr);
         gap: 10px;
+        width: 100%;
     }
 
     .dashboard-card {
         padding: 14px;
+        width: 100%;
+        min-width: 0;
     }
 
     .big-number {
@@ -1279,10 +1299,13 @@ button.warning:hover {
 
     .responsive-table {
         border-radius: 6px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
-    table {
+    .responsive-table table {
         min-width: 620px;
+        width: 100%;
     }
 
     th,
@@ -1344,7 +1367,7 @@ button.warning:hover {
    SMALL PHONES
    ========================================================================== */
 
-@media (max-width: 450px) {
+@media (max-width: 480px) {
     .main-content {
         padding: 15px 8px 30px;
     }
@@ -1353,8 +1376,10 @@ button.warning:hover {
         padding: 13px;
     }
 
+    /* FIXED: Single column on very small phones */
     .dashboard-grid {
-        gap: 7px;
+        grid-template-columns: 1fr;
+        gap: 8px;
     }
 
     .dashboard-card {
@@ -1388,6 +1413,20 @@ button.warning:hover {
 
     .filter-actions {
         grid-template-columns: 1fr;
+    }
+
+    .main-nav {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 4px;
+    }
+
+    .main-nav>a,
+    .nav-dropdown-btn,
+    .theme-toggle {
+        font-size: 11px;
+        padding: 6px 4px;
+        height: 36px;
+        min-height: 36px;
     }
 }
 
@@ -2210,6 +2249,7 @@ button.warning:hover {
     align-items: center;
     width: 100%;
 }
+
 /* ==========================================================================
    ACCOUNT DROPDOWN (solid, simple)
    ========================================================================== */
@@ -2261,7 +2301,7 @@ button.warning:hover {
     left: 0;
     min-width: 210px;
     padding: 5px;
-    background: var(--bg-surface);          /* solid surface color */
+    background: var(--bg-surface); /* solid surface color */
     border: 1px solid var(--border);
     border-radius: 8px;
     box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
@@ -2428,7 +2468,6 @@ button.warning:hover {
         text-align: center;
     }
 }
-
 
 /* ==========================================================================
    EXPORT PAGE STYLES - Theme-aware (Fixed to match OrderBoard theme)
@@ -2651,20 +2690,20 @@ button.warning:hover {
     .form-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .export-column-grid {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     }
-    
+
     .export-checkbox-grid {
         grid-template-columns: 1fr 1fr;
     }
-    
+
     .form-actions {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .form-actions .button {
         width: 100%;
     }
@@ -2674,7 +2713,7 @@ button.warning:hover {
     .export-checkbox-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .export-section {
         padding: 1rem;
     }
