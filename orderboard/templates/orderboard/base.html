@@ -1,3 +1,4 @@
+```html
 {% load static %}
 
 <!DOCTYPE html>
@@ -22,54 +23,75 @@
         })();
     </script>
 
-    <link rel="stylesheet" href="{% static 'orderboard/css/style.css' %}?v=9">
+    <link rel="stylesheet" href="{% static 'orderboard/css/style.css' %}?v=8">
     {% block extra_css %}{% endblock %}
 
     <style>
         /* ============================================================
-           HEADER STYLES - FIXED DROPDOWN OVERLAY
+           STANDALONE HEADER STYLES
            ============================================================ */
 
-        /* Reset */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
 
+        html,
         body {
-            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-            background: #f1f5f9;
-            color: #1e293b;
-            overflow-x: hidden;
             width: 100%;
+            max-width: 100%;
         }
 
-        /* Header Container */
+        body {
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                Roboto, Arial, sans-serif;
+
+            background: #f1f5f9;
+            color: #1e293b;
+
+            overflow-x: hidden;
+        }
+
+        /* ============================================================
+           HEADER
+           ============================================================ */
+
         .site-header {
             position: sticky;
             top: 0;
             z-index: 1000;
+
             width: 100%;
+
             background: #0f172a;
             color: white;
+
             border-bottom: 1px solid #1e293b;
+
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
         }
 
         .header-inner {
             width: 100%;
             max-width: 1400px;
+
             margin: 0 auto;
             padding: 0 24px;
+
             min-height: 64px;
+
             display: flex;
             align-items: center;
+
             gap: 32px;
             flex-wrap: wrap;
         }
 
-        /* Logo */
+        /* ============================================================
+           LOGO
+           ============================================================ */
+
         .site-title {
             margin: 0;
             flex-shrink: 0;
@@ -77,10 +99,14 @@
 
         .site-title a {
             display: block;
+
             color: white;
+
             font-size: 22px;
             font-weight: 800;
+
             letter-spacing: -0.4px;
+
             text-decoration: none;
             white-space: nowrap;
         }
@@ -90,12 +116,14 @@
         }
 
         /* ============================================================
-           ACCOUNT DROPDOWN
+           ACCOUNT
            ============================================================ */
 
         .header-account {
             margin-left: auto;
+
             position: relative;
+
             flex-shrink: 0;
         }
 
@@ -106,17 +134,27 @@
         .account-button {
             display: inline-flex;
             align-items: center;
+
             gap: 8px;
+
             height: 38px;
             padding: 0 12px;
+
             border: 0;
             border-radius: 6px;
+
             background: transparent;
             color: #cbd5e1;
+
             font-size: 14px;
             font-weight: 600;
+
             cursor: pointer;
-            transition: background-color 0.15s ease, color 0.15s ease;
+
+            transition:
+                background-color 0.15s ease,
+                color 0.15s ease;
+
             white-space: nowrap;
         }
 
@@ -136,20 +174,29 @@
         .dropdown-arrow {
             margin-left: 5px;
             font-size: 11px;
+
             transition: transform 0.15s ease;
         }
 
         .account-dropdown-content {
             display: none;
+
             position: absolute;
+
             top: calc(100% + 6px);
             right: 0;
+
             min-width: 210px;
+
             padding: 5px;
+
             background: #ffffff;
+
             border: 1px solid #e2e8f0;
             border-radius: 8px;
+
             box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
+
             z-index: 3000;
         }
 
@@ -164,7 +211,9 @@
 
         .account-dropdown-header {
             padding: 10px 12px;
+
             border-bottom: 1px solid #e2e8f0;
+
             margin-bottom: 4px;
         }
 
@@ -174,7 +223,9 @@
 
         .account-dropdown-header strong {
             display: block;
+
             font-size: 14px;
+
             color: #0f172a;
         }
 
@@ -184,14 +235,19 @@
 
         .account-dropdown-header span {
             display: block;
+
             margin-top: 2px;
+
             font-size: 12px;
+
             color: #94a3b8;
         }
 
         .account-dropdown-divider {
             height: 1px;
+
             background: #e2e8f0;
+
             margin: 4px 0;
         }
 
@@ -201,11 +257,16 @@
 
         .account-dropdown-content a {
             display: block;
+
             padding: 9px 12px;
+
             border-radius: 6px;
+
             color: #1e293b;
+
             font-size: 14px;
             font-weight: 500;
+
             text-decoration: none;
         }
 
@@ -225,14 +286,20 @@
 
         .account-logout-button {
             width: 100%;
+
             padding: 9px 12px;
+
             border: 0;
             border-radius: 6px;
+
             background: transparent;
             color: #dc2626;
+
             font-size: 14px;
             font-weight: 600;
+
             text-align: left;
+
             cursor: pointer;
         }
 
@@ -245,13 +312,15 @@
         }
 
         /* ============================================================
-           MAIN NAV - DESKTOP (horizontal)
+           MAIN NAV
            ============================================================ */
 
         .main-nav {
             display: flex;
             align-items: center;
+
             gap: 4px;
+
             flex-shrink: 0;
         }
 
@@ -259,22 +328,34 @@
         .nav-dropdown-btn,
         .theme-toggle {
             display: inline-flex;
+
             align-items: center;
             justify-content: center;
+
             height: 38px;
             min-height: 38px;
+
             padding: 0 12px;
+
             border: 0;
             border-radius: 6px;
+
             background: transparent;
             color: #cbd5e1;
+
             font-size: 14px;
             font-weight: 600;
+
             white-space: nowrap;
             line-height: 1;
+
             cursor: pointer;
+
             text-decoration: none;
-            transition: background-color 0.15s ease, color 0.15s ease;
+
+            transition:
+                background-color 0.15s ease,
+                color 0.15s ease;
         }
 
         .main-nav > a:hover,
@@ -295,11 +376,12 @@
         }
 
         /* ============================================================
-           DROPDOWN
+           NAV DROPDOWN
            ============================================================ */
 
         .nav-dropdown {
             position: relative;
+
             flex-shrink: 0;
         }
 
@@ -309,17 +391,26 @@
 
         .nav-dropdown-content {
             display: none;
+
             position: absolute;
+
             top: calc(100% + 6px);
             left: 0;
+
             min-width: 190px;
+
             padding: 5px;
+
             background: #ffffff;
+
             border: 1px solid #e2e8f0;
             border-radius: 8px;
+
             box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
+
             overflow: hidden;
-            z-index: 2000;
+
+            z-index: 5000;
         }
 
         [data-theme="dark"] .nav-dropdown-content {
@@ -329,22 +420,35 @@
 
         .nav-dropdown.open > .nav-dropdown-content {
             display: flex;
+
             flex-direction: column;
+
             gap: 3px;
         }
 
         .nav-dropdown-content a {
             display: flex;
+
             align-items: center;
+
             min-height: 40px;
+
             padding: 9px 12px;
+
             border-radius: 6px;
+
             color: #1e293b;
+
             font-size: 14px;
             font-weight: 600;
+
             white-space: nowrap;
-            transition: background-color 0.15s ease, color 0.15s ease;
+
             text-decoration: none;
+
+            transition:
+                background-color 0.15s ease,
+                color 0.15s ease;
         }
 
         [data-theme="dark"] .nav-dropdown-content a {
@@ -366,7 +470,7 @@
         }
 
         /* ============================================================
-           THEME TOGGLE
+           THEME
            ============================================================ */
 
         .theme-toggle {
@@ -380,46 +484,57 @@
         .main-content {
             width: 100%;
             max-width: 1400px;
+
             margin: 0 auto;
+
             padding: 32px 24px 60px;
+
             overflow-x: hidden;
         }
 
         /* ============================================================
-           MOBILE RESPONSIVE - FIXED DROPDOWN OVERLAY
+           MOBILE
            ============================================================ */
 
         @media (max-width: 700px) {
 
-            html,
-            body {
-                width: 100%;
-                max-width: 100%;
-                overflow-x: hidden;
-            }
-
             .site-header {
                 width: 100%;
                 max-width: 100%;
-                overflow-x: hidden;
+
+                overflow: visible;
             }
 
             .header-inner {
                 width: 100%;
                 max-width: 100%;
+
                 margin: 0;
+
                 padding: 12px 14px;
+
                 min-height: auto;
+
                 display: flex;
+
                 flex-direction: column;
+
                 align-items: stretch;
+
                 gap: 10px;
+
                 flex-wrap: nowrap;
             }
 
+            /* ========================================================
+               LOGO
+               ======================================================== */
+
             .site-title {
                 width: 100%;
+
                 text-align: center;
+
                 order: 0;
             }
 
@@ -427,10 +542,15 @@
                 font-size: 20px;
             }
 
-            /* Account dropdown - full width on top */
+            /* ========================================================
+               ACCOUNT
+               ======================================================== */
+
             .header-account {
                 order: 1;
+
                 width: 100%;
+
                 margin-left: 0;
             }
 
@@ -440,10 +560,14 @@
 
             .account-button {
                 width: 100%;
+
                 justify-content: center;
-                background: rgba(255, 255, 255, 0.06);
+
                 height: 40px;
                 min-height: 40px;
+
+                background: rgba(255, 255, 255, 0.06);
+
                 font-size: 14px;
             }
 
@@ -453,9 +577,13 @@
 
             .account-dropdown-content {
                 position: static;
+
                 width: 100%;
+
                 margin-top: 4px;
+
                 box-shadow: none;
+
                 background: #ffffff !important;
             }
 
@@ -465,6 +593,7 @@
 
             .account-dropdown-content a {
                 text-align: center;
+
                 color: #1e293b !important;
             }
 
@@ -476,39 +605,80 @@
                 text-align: center;
             }
 
-            /* ==========================================================
-               MAIN NAV - SCROLLABLE HORIZONTAL ROW
-               ========================================================== */
+            /* ========================================================
+               MOBILE NAVIGATION
+               ======================================================== */
 
             .main-nav {
                 order: 2;
+
                 width: 100%;
                 max-width: 100%;
-                margin: 0;
+
+                margin-left: 0;
+
                 display: flex;
+
                 flex-direction: row;
-                align-items: center;
-                gap: 5px;
-                flex-shrink: 0;
-                overflow-x: auto;
-                overflow-y: hidden;
-                overscroll-behavior-x: contain;
-                touch-action: pan-x;
-                -webkit-overflow-scrolling: touch;
+
                 flex-wrap: nowrap;
-                scrollbar-width: none;
-                -ms-overflow-style: none;
+
+                align-items: center;
+
+                gap: 5px;
+
+                padding: 4px 0 8px 0;
+
+                flex-shrink: 0;
+
+                /*
+                 * ONLY THE NAVIGATION SCROLLS HORIZONTALLY.
+                 */
+                overflow-x: auto;
+
+                /*
+                 * Don't clip vertically.
+                 */
+                overflow-y: visible;
+
+                -webkit-overflow-scrolling: touch;
+
+                /*
+                 * Prevent the swipe from becoming page scrolling.
+                 */
+                overscroll-behavior-x: contain;
+
+                scrollbar-width: thin;
+
+                position: relative;
             }
 
             .main-nav::-webkit-scrollbar {
-                display: none;
+                height: 4px;
             }
 
-            /* All nav items keep their own width */
+            .main-nav::-webkit-scrollbar-track {
+                background: rgba(255, 255, 255, 0.05);
+
+                border-radius: 4px;
+            }
+
+            .main-nav::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+
+                border-radius: 4px;
+            }
+
+            /* ========================================================
+               NAV BUTTONS
+               ======================================================== */
+
             .main-nav > a,
             .main-nav > .nav-dropdown,
             .main-nav > .theme-toggle {
                 flex: 0 0 auto;
+
+                width: auto;
             }
 
             .main-nav > a,
@@ -516,12 +686,23 @@
             .theme-toggle {
                 height: 38px;
                 min-height: 38px;
-                width: auto;
-                padding: 0 12px;
+
+                padding: 6px 12px;
+
                 background: rgba(255, 255, 255, 0.06);
+
+                text-align: center;
+
                 font-size: 12px;
+
                 white-space: nowrap;
+
                 border-radius: 6px;
+
+                display: inline-flex;
+
+                align-items: center;
+                justify-content: center;
             }
 
             .main-nav > a:hover,
@@ -530,60 +711,86 @@
                 background: rgba(255, 255, 255, 0.12);
             }
 
-            /* ==========================================================
-               DROPDOWN - OVERLAY ON MOBILE (opens DOWNWARD)
-               ========================================================== */
+            /* ========================================================
+               MOBILE DROPDOWN CONTAINER
+               
+               IMPORTANT:
+               position: fixed means it is NOT clipped by
+               .main-nav's overflow-x:auto.
+               ======================================================== */
 
             .nav-dropdown {
-                position: relative;
+                position: static;
+
                 flex: 0 0 auto;
-                z-index: 100;
             }
 
             .nav-dropdown-btn {
                 width: auto !important;
             }
 
-            /* Dropdown content - OVERLAY using position: fixed */
             .nav-dropdown-content {
                 display: none;
+
                 position: fixed;
-                top: auto;
-                left: 50%;
-                transform: translateX(-50%);
-                width: calc(100vw - 28px);
-                max-width: 320px;
-                margin-top: 4px;
-                padding: 4px;
+
+                /*
+                 * JavaScript sets top/left based on the button.
+                 */
+                top: 0;
+                left: 0;
+
+                transform: none;
+
+                min-width: 180px;
+
+                max-width: calc(100vw - 20px);
+
+                padding: 5px;
+
                 background: #ffffff;
+
                 border: 1px solid #e2e8f0;
-                border-radius: 6px;
-                box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
-                z-index: 9999;
+
+                border-radius: 7px;
+
+                box-shadow:
+                    0 8px 25px rgba(0, 0, 0, 0.25);
+
+                z-index: 10000;
+
                 overflow: hidden;
-                max-height: 300px;
-                overflow-y: auto;
             }
 
             [data-theme="dark"] .nav-dropdown-content {
                 background: #1e293b;
+
                 border-color: #334155;
             }
 
             .nav-dropdown.open > .nav-dropdown-content {
                 display: flex;
+
                 flex-direction: column;
-                gap: 3px;
+
+                gap: 2px;
             }
 
             .nav-dropdown-content a {
                 min-height: 38px;
+
                 color: #1e293b;
-                justify-content: center;
-                text-align: center;
+
+                justify-content: flex-start;
+
+                text-align: left;
+
                 white-space: nowrap;
+
                 font-size: 12px;
-                padding: 8px 12px;
+
+                padding: 8px 14px;
+
                 border-radius: 4px;
             }
 
@@ -593,87 +800,92 @@
 
             .nav-dropdown-content a:hover {
                 background: #f8fafc;
+
                 color: #2563eb;
             }
 
             [data-theme="dark"] .nav-dropdown-content a:hover {
                 background: #273449;
+
                 color: #60a5fa;
             }
 
-            /* Make sure dropdown arrow rotates */
-            .nav-dropdown.open .dropdown-arrow {
-                transform: rotate(180deg);
-            }
+            /* ========================================================
+               MAIN CONTENT
+               ======================================================== */
 
-            .theme-toggle {
-                margin-left: 0;
-            }
-
-            /* Prevent page scroll from nav scroll */
             .main-content {
-                padding: 16px 10px 30px;
-                overflow-x: hidden;
                 width: 100%;
+                max-width: 100%;
+
+                padding: 16px 10px 30px;
+
+                overflow-x: hidden;
             }
         }
 
         /* ============================================================
-           SMALL PHONES (480px and below)
+           SMALL PHONES
            ============================================================ */
 
         @media (max-width: 480px) {
-            .header-inner {
-                padding: 10px 12px;
-            }
 
             .main-nav {
                 gap: 4px;
+
+                padding: 2px 0 6px 0;
             }
 
             .main-nav > a,
             .nav-dropdown-btn,
             .theme-toggle {
-                height: 36px;
-                min-height: 36px;
-                padding: 0 10px;
                 font-size: 11px;
+
+                padding: 5px 10px;
+
+                height: 34px;
+                min-height: 34px;
             }
 
             .account-button {
                 font-size: 13px;
+
                 height: 38px;
                 min-height: 38px;
             }
 
             .nav-dropdown-content {
-                max-width: 280px;
+                min-width: 160px;
             }
 
             .nav-dropdown-content a {
                 font-size: 11px;
-                padding: 6px 10px;
+
+                padding: 6px 12px;
+
                 min-height: 34px;
             }
         }
 
         /* ============================================================
-           VERY SMALL PHONES (350px and below)
+           VERY SMALL PHONES
            ============================================================ */
 
         @media (max-width: 350px) {
+
             .main-nav > a,
             .nav-dropdown-btn,
             .theme-toggle {
-                padding: 0 8px;
                 font-size: 10px;
+
+                padding: 4px 8px;
+
                 height: 32px;
                 min-height: 32px;
             }
 
             .nav-dropdown-content {
-                max-width: 240px;
-                min-width: 160px;
+                min-width: 140px;
             }
         }
     </style>
@@ -692,7 +904,9 @@
 
             <!-- Logo -->
             <h1 class="site-title">
-                <a href="{% url 'dashboard' %}">OrderBoard</a>
+                <a href="{% url 'dashboard' %}">
+                    OrderBoard
+                </a>
             </h1>
 
             {% if user.is_authenticated %}
@@ -709,8 +923,14 @@
                         aria-expanded="false"
                     >
                         <span class="account-icon">👤</span>
-                        <span class="account-name">{{ user.username }}</span>
-                        <span class="dropdown-arrow">▾</span>
+
+                        <span class="account-name">
+                            {{ user.username }}
+                        </span>
+
+                        <span class="dropdown-arrow">
+                            ▾
+                        </span>
                     </button>
 
                     <div
@@ -720,10 +940,14 @@
 
                         <div class="account-dropdown-header">
 
-                            <strong>{{ user.username }}</strong>
+                            <strong>
+                                {{ user.username }}
+                            </strong>
 
                             {% if user.email %}
-                                <span>{{ user.email }}</span>
+                                <span>
+                                    {{ user.email }}
+                                </span>
                             {% endif %}
 
                         </div>
@@ -746,7 +970,10 @@
 
                         <div class="account-dropdown-divider"></div>
 
-                        <form method="post" action="{% url 'logout' %}">
+                        <form
+                            method="post"
+                            action="{% url 'logout' %}"
+                        >
                             {% csrf_token %}
 
                             <button
@@ -764,7 +991,10 @@
 
             </div>
 
-            <!-- Main Navigation -->
+            <!-- =============================================================
+                 MAIN NAVIGATION
+                 ============================================================= -->
+
             <nav class="main-nav">
 
                 <a href="{% url 'dashboard' %}">
@@ -780,7 +1010,10 @@
                         aria-expanded="false"
                     >
                         Orders
-                        <span class="dropdown-arrow">▾</span>
+
+                        <span class="dropdown-arrow">
+                            ▾
+                        </span>
                     </button>
 
                     <div class="nav-dropdown-content">
@@ -806,7 +1039,10 @@
                         aria-expanded="false"
                     >
                         Customers
-                        <span class="dropdown-arrow">▾</span>
+
+                        <span class="dropdown-arrow">
+                            ▾
+                        </span>
                     </button>
 
                     <div class="nav-dropdown-content">
@@ -839,7 +1075,7 @@
                     Printing
                 </a>
 
-                <!-- Theme Toggle -->
+                <!-- Theme -->
                 <button
                     type="button"
                     id="theme-toggle"
@@ -847,7 +1083,10 @@
                     aria-label="Toggle theme"
                 >
                     <span id="theme-icon">☀</span>
-                    <span id="theme-text">Light</span>
+
+                    <span id="theme-text">
+                        Light
+                    </span>
                 </button>
 
             </nav>
@@ -906,7 +1145,9 @@
 
         <div class="footer-inner">
 
-            <p>OrderBoard</p>
+            <p>
+                OrderBoard
+            </p>
 
         </div>
 
@@ -919,40 +1160,164 @@
     <script>
 
         /* ================================================================
+           NAV DROPDOWN POSITIONING
+           
+           On mobile, dropdowns use position: fixed because the nav itself
+           is horizontally scrollable. This prevents the dropdown from
+           being clipped by overflow-x:auto.
+           ================================================================ */
+
+        function positionMobileDropdown(dropdown) {
+
+            if (window.innerWidth > 700) {
+                return;
+            }
+
+            const button =
+                dropdown.querySelector('.nav-dropdown-btn');
+
+            const menu =
+                dropdown.querySelector('.nav-dropdown-content');
+
+            if (!button || !menu) {
+                return;
+            }
+
+            const rect =
+                button.getBoundingClientRect();
+
+            const menuWidth =
+                Math.min(180, window.innerWidth - 20);
+
+            let left =
+                rect.left;
+
+            /*
+             * Keep dropdown inside the phone screen.
+             */
+            if (left + menuWidth > window.innerWidth - 10) {
+                left =
+                    window.innerWidth - menuWidth - 10;
+            }
+
+            if (left < 10) {
+                left = 10;
+            }
+
+            menu.style.width = menuWidth + 'px';
+
+            menu.style.left =
+                left + 'px';
+
+            menu.style.top =
+                (rect.bottom + 5) + 'px';
+        }
+
+
+        /* ================================================================
            NAV DROPDOWNS
            ================================================================ */
 
         document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
 
-            const btn = dropdown.querySelector('.nav-dropdown-btn');
+            const btn =
+                dropdown.querySelector('.nav-dropdown-btn');
+
+            const menu =
+                dropdown.querySelector('.nav-dropdown-content');
+
+            if (!btn || !menu) {
+                return;
+            }
 
             btn.addEventListener('click', (e) => {
 
-                e.stopPropagation();
                 e.preventDefault();
+                e.stopPropagation();
 
-                const isOpen = dropdown.classList.contains('open');
+                const isOpen =
+                    dropdown.classList.contains('open');
 
+                /*
+                 * Close all nav dropdowns first.
+                 */
                 document.querySelectorAll('.nav-dropdown').forEach(d => {
 
                     d.classList.remove('open');
 
-                    d.querySelector('.nav-dropdown-btn')
-                        .setAttribute('aria-expanded', 'false');
+                    const dBtn =
+                        d.querySelector('.nav-dropdown-btn');
+
+                    if (dBtn) {
+                        dBtn.setAttribute(
+                            'aria-expanded',
+                            'false'
+                        );
+                    }
 
                 });
 
+                /*
+                 * Open selected dropdown.
+                 */
                 if (!isOpen) {
 
                     dropdown.classList.add('open');
 
-                    btn.setAttribute('aria-expanded', 'true');
+                    btn.setAttribute(
+                        'aria-expanded',
+                        'true'
+                    );
 
+                    positionMobileDropdown(dropdown);
                 }
 
             });
 
+            /*
+             * Prevent clicks inside the dropdown from reaching the
+             * document click handler.
+             */
+            menu.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
         });
+
+
+        /* ================================================================
+           REPOSITION OPEN DROPDOWN
+           ================================================================ */
+
+        window.addEventListener('resize', () => {
+
+            const openDropdown =
+                document.querySelector(
+                    '.nav-dropdown.open'
+                );
+
+            if (openDropdown) {
+                positionMobileDropdown(openDropdown);
+            }
+
+        });
+
+
+        window.addEventListener('scroll', () => {
+
+            const openDropdown =
+                document.querySelector(
+                    '.nav-dropdown.open'
+                );
+
+            if (
+                openDropdown &&
+                window.innerWidth <= 700
+            ) {
+                positionMobileDropdown(openDropdown);
+            }
+
+        }, true);
 
 
         /* ================================================================
@@ -963,13 +1328,16 @@
             document.getElementById('account-button');
 
         const accountDropdown =
-            document.getElementById('account-dropdown-content');
+            document.getElementById(
+                'account-dropdown-content'
+            );
 
 
         if (accountButton && accountDropdown) {
 
             accountButton.addEventListener('click', (e) => {
 
+                e.preventDefault();
                 e.stopPropagation();
 
                 const isOpen =
@@ -982,6 +1350,10 @@
                     String(!isOpen)
                 );
 
+            });
+
+            accountDropdown.addEventListener('click', (e) => {
+                e.stopPropagation();
             });
 
         }
@@ -997,8 +1369,17 @@
 
                 dropdown.classList.remove('open');
 
-                dropdown.querySelector('.nav-dropdown-btn')
-                    .setAttribute('aria-expanded', 'false');
+                const btn =
+                    dropdown.querySelector(
+                        '.nav-dropdown-btn'
+                    );
+
+                if (btn) {
+                    btn.setAttribute(
+                        'aria-expanded',
+                        'false'
+                    );
+                }
 
             });
 
@@ -1070,13 +1451,16 @@
         if (themeToggle) {
 
             const currentTheme =
-                document.documentElement.getAttribute('data-theme')
+                document.documentElement
+                    .getAttribute('data-theme')
                 || 'light';
 
             applyTheme(currentTheme);
 
 
-            themeToggle.addEventListener('click', () => {
+            themeToggle.addEventListener('click', (e) => {
+
+                e.stopPropagation();
 
                 const current =
                     document.documentElement
@@ -1105,3 +1489,4 @@
 </body>
 
 </html>
+```
