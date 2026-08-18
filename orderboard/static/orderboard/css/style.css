@@ -1165,28 +1165,46 @@ button.warning:hover {
         padding-right: 18px;
     }
 }
-
 /* ==========================================================================
-   MOBILE - FIXED
+   MOBILE HEADER
    ========================================================================== */
 
 @media (max-width: 700px) {
+
     html {
         scroll-padding-top: 20px;
     }
 
+    /* --------------------------------------------------
+       HEADER
+       -------------------------------------------------- */
+
     .site-header {
         position: relative;
+        width: 100%;
+        overflow: visible;
     }
 
     .header-inner {
+        width: 100%;
+        max-width: none;
+        box-sizing: border-box;
+
+        display: flex;
         flex-direction: column;
         align-items: stretch;
+
         gap: 12px;
-        padding: 14px;
+        padding: 14px 12px;
     }
 
+    /* --------------------------------------------------
+       LOGO
+       -------------------------------------------------- */
+
     .site-title {
+        width: 100%;
+        margin: 0;
         text-align: center;
     }
 
@@ -1194,25 +1212,68 @@ button.warning:hover {
         font-size: 21px;
     }
 
+    /* --------------------------------------------------
+       MOBILE NAVIGATION
+       2 columns
+       -------------------------------------------------- */
+
     .main-nav {
         width: 100%;
-        margin-left: 0;
+        max-width: 100%;
+        min-width: 0;
+
+        margin: 0;
+        padding: 0;
+
+        box-sizing: border-box;
+
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
+
         gap: 6px;
-        flex-shrink: 0;
+
+        /*
+         * IMPORTANT:
+         * Override desktop flex behavior.
+         */
+        flex-shrink: 1;
     }
+
+    /* Every navigation item must stay
+       inside its grid cell */
+
+    .main-nav > a,
+    .main-nav > .nav-dropdown,
+    .main-nav > .theme-toggle {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Buttons / links */
 
     .main-nav > a,
     .nav-dropdown-btn,
     .theme-toggle {
         width: 100%;
+        min-width: 0;
+        max-width: 100%;
+
         height: 42px;
         min-height: 42px;
+
         padding: 8px 6px;
+
+        box-sizing: border-box;
+
         background: rgba(255, 255, 255, 0.06);
+
         text-align: center;
+        justify-content: center;
+
         font-size: 13px;
+
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -1224,19 +1285,42 @@ button.warning:hover {
         background: rgba(255, 255, 255, 0.12);
     }
 
+    /* --------------------------------------------------
+       ORDERS / CUSTOMERS DROPDOWNS
+       -------------------------------------------------- */
+
     .nav-dropdown {
+        position: relative;
+
         width: 100%;
+        min-width: 0;
+
+        flex-shrink: 1;
+    }
+
+    .nav-dropdown-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .nav-dropdown-content {
         display: none;
+
         position: static;
+
         width: 100%;
+        min-width: 0;
+
         margin-top: 4px;
         padding: 4px;
+
+        box-sizing: border-box;
+
         background: var(--bg-surface);
         border: 1px solid var(--border);
         border-radius: 6px;
+
         box-shadow: none;
     }
 
@@ -1247,9 +1331,12 @@ button.warning:hover {
 
     .nav-dropdown-content a {
         min-height: 40px;
+
         color: var(--text-main);
+
         justify-content: center;
         text-align: center;
+
         white-space: nowrap;
     }
 
@@ -1258,11 +1345,41 @@ button.warning:hover {
         color: var(--link);
     }
 
+    /* --------------------------------------------------
+       THEME
+       -------------------------------------------------- */
+
     .theme-toggle {
-        margin-left: 0;
+        margin: 0;
     }
 
+    /* --------------------------------------------------
+       ACCOUNT
+       -------------------------------------------------- */
+
+    .header-account {
+        width: 100%;
+        min-width: 0;
+
+        display: flex;
+        justify-content: center;
+    }
+
+    .account-dropdown {
+        max-width: 100%;
+    }
+
+    .account-button {
+        max-width: 100%;
+    }
+
+    /* --------------------------------------------------
+       REST OF MOBILE PAGE
+       -------------------------------------------------- */
+
     .main-content {
+        width: 100%;
+        box-sizing: border-box;
         padding: 20px 12px 40px;
         overflow-x: hidden;
     }
@@ -1283,7 +1400,6 @@ button.warning:hover {
         overflow-x: hidden;
     }
 
-    /* FIXED: Dashboard cards - 2 columns, no overflow */
     .dashboard-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
@@ -1329,7 +1445,7 @@ button.warning:hover {
     select,
     textarea {
         max-width: none;
-        font-size: 16px; /* prevents iOS zoom */
+        font-size: 16px;
     }
 
     button,
@@ -1375,11 +1491,13 @@ button.warning:hover {
     }
 }
 
+
 /* ==========================================================================
    SMALL PHONES
    ========================================================================== */
 
 @media (max-width: 480px) {
+
     .main-content {
         padding: 15px 8px 30px;
     }
@@ -1388,7 +1506,6 @@ button.warning:hover {
         padding: 13px;
     }
 
-    /* FIXED: Single column on very small phones */
     .dashboard-grid {
         grid-template-columns: minmax(0, 1fr);
         gap: 8px;
@@ -1427,6 +1544,9 @@ button.warning:hover {
         grid-template-columns: 1fr;
     }
 
+    /*
+     * KEEP NAVIGATION 2 COLUMNS
+     */
     .main-nav {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 5px;
@@ -1442,17 +1562,32 @@ button.warning:hover {
     }
 }
 
+
 /* ==========================================================================
    VERY SMALL PHONES
    ========================================================================== */
 
 @media (max-width: 350px) {
+
     .dashboard-grid {
         grid-template-columns: minmax(0, 1fr);
     }
 
+    /*
+     * STILL 2 COLUMNS.
+     * Never change this to 1fr because the desired
+     * mobile header is always a 2-column layout.
+     */
     .main-nav {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 4px;
+    }
+
+    .main-nav > a,
+    .nav-dropdown-btn,
+    .theme-toggle {
+        font-size: 11px;
+        padding: 6px 3px;
     }
 
     .date-filter-inputs {
@@ -1464,11 +1599,13 @@ button.warning:hover {
     }
 }
 
+
 /* ==========================================================================
    REDUCED MOTION
    ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
+
     html {
         scroll-behavior: auto;
     }
@@ -1480,7 +1617,6 @@ button.warning:hover {
         animation: none !important;
     }
 }
-
 /* ==========================================================================
    PRINTING PAGE
    ========================================================================== */
