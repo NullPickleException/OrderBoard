@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}OrderBoard{% endblock %}</title>
 
-    <!-- Theme (runs before CSS to avoid flash) -->
+    <!-- Theme -->
     <script>
         (function () {
             try {
@@ -24,6 +24,778 @@
 
     <link rel="stylesheet" href="{% static 'orderboard/css/style.css' %}?v=6">
     {% block extra_css %}{% endblock %}
+
+    <style>
+        /* ============================================================
+           STANDALONE HEADER STYLES
+           ============================================================ */
+
+        /* ============================================================
+           RESET
+           ============================================================ */
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                Roboto, Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+        }
+
+        /* ============================================================
+           HEADER
+           ============================================================ */
+
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            width: 100%;
+            background: #0f172a;
+            color: white;
+            border-bottom: 1px solid #1e293b;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            min-height: 64px;
+
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+
+        /* ============================================================
+           LOGO
+           ============================================================ */
+
+        .site-title {
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        .site-title a {
+            display: block;
+            color: white;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.4px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .site-title a:hover {
+            color: white;
+        }
+
+        /* ============================================================
+           ACCOUNT DROPDOWN
+           ============================================================ */
+
+        .header-account {
+            margin-left: auto;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .account-dropdown {
+            position: relative;
+        }
+
+        .account-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            height: 38px;
+            padding: 0 12px;
+
+            border: 0;
+            border-radius: 6px;
+
+            background: transparent;
+            color: #cbd5e1;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            cursor: pointer;
+            transition: background-color 0.15s ease, color 0.15s ease;
+
+            white-space: nowrap;
+        }
+
+        .account-button:hover {
+            background: #1e293b;
+            color: white;
+        }
+
+        .account-icon {
+            font-size: 16px;
+        }
+
+        .account-name {
+            white-space: nowrap;
+        }
+
+        .dropdown-arrow {
+            margin-left: 5px;
+            font-size: 11px;
+            transition: transform 0.15s ease;
+        }
+
+        .account-dropdown-content {
+            display: none;
+
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+
+            min-width: 210px;
+            padding: 5px;
+
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
+
+            z-index: 3000;
+        }
+
+        [data-theme="dark"] .account-dropdown-content {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        .account-dropdown-content.open {
+            display: block;
+        }
+
+        .account-dropdown-header {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 4px;
+        }
+
+        [data-theme="dark"] .account-dropdown-header {
+            border-color: #334155;
+        }
+
+        .account-dropdown-header strong {
+            display: block;
+            font-size: 14px;
+            color: #0f172a;
+        }
+
+        [data-theme="dark"] .account-dropdown-header strong {
+            color: #f8fafc;
+        }
+
+        .account-dropdown-header span {
+            display: block;
+            margin-top: 2px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .account-dropdown-divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 4px 0;
+        }
+
+        [data-theme="dark"] .account-dropdown-divider {
+            background: #334155;
+        }
+
+        .account-dropdown-content a {
+            display: block;
+            padding: 9px 12px;
+
+            border-radius: 6px;
+
+            color: #1e293b;
+
+            font-size: 14px;
+            font-weight: 500;
+
+            text-decoration: none;
+        }
+
+        [data-theme="dark"] .account-dropdown-content a {
+            color: #e2e8f0;
+        }
+
+        .account-dropdown-content a:hover {
+            background: #f8fafc;
+            color: #2563eb;
+        }
+
+        [data-theme="dark"] .account-dropdown-content a:hover {
+            background: #273449;
+            color: #60a5fa;
+        }
+
+        .account-logout-button {
+            width: 100%;
+            padding: 9px 12px;
+
+            border: 0;
+            border-radius: 6px;
+
+            background: transparent;
+            color: #dc2626;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .account-logout-button:hover {
+            background: #fee2e2;
+        }
+
+        [data-theme="dark"] .account-logout-button:hover {
+            background: #7f1d1d;
+        }
+
+        /* ============================================================
+           MAIN NAV
+           ============================================================ */
+
+        .main-nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+
+            flex-shrink: 0;
+        }
+
+        .main-nav > a,
+        .nav-dropdown-btn,
+        .theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+
+            height: 38px;
+            min-height: 38px;
+
+            padding: 0 12px;
+
+            border: 0;
+            border-radius: 6px;
+
+            background: transparent;
+            color: #cbd5e1;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            white-space: nowrap;
+            line-height: 1;
+
+            cursor: pointer;
+            text-decoration: none;
+
+            transition:
+                background-color 0.15s ease,
+                color 0.15s ease;
+        }
+
+        .main-nav > a:hover,
+        .nav-dropdown-btn:hover,
+        .theme-toggle:hover {
+            background: #1e293b;
+            color: white;
+        }
+
+        .login-nav-button {
+            background: #2563eb !important;
+            color: #ffffff !important;
+        }
+
+        .login-nav-button:hover {
+            background: #1d4ed8 !important;
+            color: #ffffff !important;
+        }
+
+        /* ============================================================
+           NAV DROPDOWN
+           ============================================================ */
+
+        .nav-dropdown {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .nav-dropdown-btn {
+            width: auto;
+        }
+
+        .nav-dropdown-content {
+            display: none;
+
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+
+            min-width: 190px;
+            padding: 5px;
+
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
+
+            overflow: hidden;
+            z-index: 2000;
+        }
+
+        [data-theme="dark"] .nav-dropdown-content {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        .nav-dropdown.open > .nav-dropdown-content {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .nav-dropdown-content a {
+            display: flex;
+            align-items: center;
+
+            min-height: 40px;
+            padding: 9px 12px;
+
+            border-radius: 6px;
+
+            color: #1e293b;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            white-space: nowrap;
+            text-decoration: none;
+
+            transition:
+                background-color 0.15s ease,
+                color 0.15s ease;
+        }
+
+        [data-theme="dark"] .nav-dropdown-content a {
+            color: #e2e8f0;
+        }
+
+        .nav-dropdown-content a:hover {
+            background: #f8fafc;
+            color: #2563eb;
+        }
+
+        [data-theme="dark"] .nav-dropdown-content a:hover {
+            background: #273449;
+            color: #60a5fa;
+        }
+
+        .nav-dropdown.open .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* ============================================================
+           THEME TOGGLE
+           ============================================================ */
+
+        .theme-toggle {
+            margin-left: 4px;
+        }
+
+        /* ============================================================
+           MAIN CONTENT
+           ============================================================ */
+
+        .main-content {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px 60px;
+
+            /*
+             * Prevent horizontal overflow from the main page.
+             * The navigation gets its own scrolling area on mobile.
+             */
+            overflow-x: hidden;
+        }
+
+        /* ============================================================
+           MOBILE
+           ============================================================ */
+
+        @media (max-width: 700px) {
+
+            /*
+             * IMPORTANT:
+             * The body/page itself does NOT scroll horizontally.
+             */
+            html,
+            body {
+                width: 100%;
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+
+            .site-header {
+                width: 100%;
+                max-width: 100%;
+                overflow-x: hidden;
+            }
+
+            .header-inner {
+                width: 100%;
+                max-width: 100%;
+
+                margin: 0;
+                padding: 12px 14px;
+
+                min-height: auto;
+
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+
+                gap: 10px;
+                flex-wrap: nowrap;
+            }
+
+            /* ========================================================
+               LOGO
+               ======================================================== */
+
+            .site-title {
+                width: 100%;
+                text-align: center;
+                order: 0;
+            }
+
+            .site-title a {
+                font-size: 20px;
+            }
+
+            /* ========================================================
+               ACCOUNT
+               ======================================================== */
+
+            .header-account {
+                order: 1;
+
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .account-dropdown {
+                width: 100%;
+            }
+
+            .account-button {
+                width: 100%;
+                justify-content: center;
+
+                height: 40px;
+                min-height: 40px;
+
+                background: rgba(255, 255, 255, 0.06);
+
+                font-size: 14px;
+            }
+
+            .account-button:hover {
+                background: rgba(255, 255, 255, 0.12);
+            }
+
+            .account-dropdown-content {
+                position: static;
+
+                width: 100%;
+                margin-top: 4px;
+
+                box-shadow: none;
+
+                background: #ffffff !important;
+            }
+
+            [data-theme="dark"] .account-dropdown-content {
+                background: #1e293b !important;
+            }
+
+            .account-dropdown-content a {
+                text-align: center;
+                color: #1e293b !important;
+            }
+
+            [data-theme="dark"] .account-dropdown-content a {
+                color: #e2e8f0 !important;
+            }
+
+            .account-logout-button {
+                text-align: center;
+            }
+
+            /* ========================================================
+               MAIN NAVIGATION - ISOLATED HORIZONTAL SCROLLER
+               ======================================================== */
+
+            .main-nav {
+                order: 2;
+
+                /*
+                 * The navigation itself is the ONLY horizontal
+                 * scrolling area.
+                 */
+                width: 100%;
+                max-width: 100%;
+
+                margin: 0;
+
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+
+                gap: 5px;
+
+                flex-shrink: 0;
+
+                /*
+                 * Allow horizontal swipe inside nav only.
+                 */
+                overflow-x: auto;
+                overflow-y: hidden;
+
+                /*
+                 * Prevent the navigation from causing page width.
+                 */
+                overscroll-behavior-x: contain;
+                touch-action: pan-x;
+
+                /*
+                 * Smooth touch scrolling.
+                 */
+                -webkit-overflow-scrolling: touch;
+
+                /*
+                 * Keep navigation on one line.
+                 */
+                flex-wrap: nowrap;
+
+                /*
+                 * Hide scrollbar while keeping scrolling.
+                 */
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+
+            .main-nav::-webkit-scrollbar {
+                display: none;
+            }
+
+            /*
+             * Every navigation item keeps its own natural width.
+             * Nothing gets compressed into a grid.
+             */
+            .main-nav > a,
+            .main-nav > .nav-dropdown,
+            .main-nav > .theme-toggle {
+                flex: 0 0 auto;
+            }
+
+            .main-nav > a,
+            .nav-dropdown-btn,
+            .theme-toggle {
+                height: 40px;
+                min-height: 40px;
+
+                width: auto;
+
+                padding: 0 14px;
+
+                background: rgba(255, 255, 255, 0.06);
+
+                font-size: 12px;
+
+                white-space: nowrap;
+
+                border-radius: 6px;
+            }
+
+            .main-nav > a:hover,
+            .nav-dropdown-btn:hover,
+            .theme-toggle:hover {
+                background: rgba(255, 255, 255, 0.12);
+            }
+
+            /* ========================================================
+               MOBILE DROPDOWNS
+               ======================================================== */
+
+            .nav-dropdown {
+                position: relative;
+                flex: 0 0 auto;
+            }
+
+            .nav-dropdown-btn {
+                width: auto;
+            }
+
+            /*
+             * Dropdowns stay attached to their navigation item.
+             * They do NOT become horizontal scrolling containers.
+             */
+            .nav-dropdown-content {
+                position: fixed;
+
+                top: auto;
+                left: 50%;
+                transform: translateX(-50%);
+
+                width: calc(100vw - 28px);
+                max-width: 320px;
+
+                margin-top: 4px;
+
+                padding: 4px;
+
+                background: #ffffff;
+
+                border: 1px solid #e2e8f0;
+                border-radius: 6px;
+
+                box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
+
+                z-index: 3000;
+            }
+
+            [data-theme="dark"] .nav-dropdown-content {
+                background: #1e293b;
+                border-color: #334155;
+            }
+
+            .nav-dropdown.open > .nav-dropdown-content {
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .nav-dropdown-content a {
+                min-height: 38px;
+
+                color: #1e293b;
+
+                justify-content: center;
+                text-align: center;
+
+                white-space: nowrap;
+
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+
+            [data-theme="dark"] .nav-dropdown-content a {
+                color: #e2e8f0;
+            }
+
+            .nav-dropdown-content a:hover {
+                background: #f8fafc;
+                color: #2563eb;
+            }
+
+            [data-theme="dark"] .nav-dropdown-content a:hover {
+                background: #273449;
+                color: #60a5fa;
+            }
+
+            .theme-toggle {
+                margin-left: 0;
+            }
+
+            /* ========================================================
+               MAIN CONTENT
+               ======================================================== */
+
+            .main-content {
+                width: 100%;
+                max-width: 100%;
+
+                padding: 16px 10px 30px;
+
+                /*
+                 * Main page NEVER horizontally scrolls.
+                 */
+                overflow-x: hidden;
+            }
+        }
+
+        /* ============================================================
+           SMALL PHONES
+           ============================================================ */
+
+        @media (max-width: 480px) {
+
+            .header-inner {
+                padding: 10px 12px;
+            }
+
+            .main-nav {
+                gap: 4px;
+            }
+
+            .main-nav > a,
+            .nav-dropdown-btn,
+            .theme-toggle {
+                height: 38px;
+                min-height: 38px;
+
+                padding: 0 12px;
+
+                font-size: 11px;
+            }
+
+            .account-button {
+                font-size: 13px;
+
+                height: 38px;
+                min-height: 38px;
+            }
+        }
+
+        /* ============================================================
+           VERY SMALL PHONES
+           ============================================================ */
+
+        @media (max-width: 350px) {
+
+            .main-nav > a,
+            .nav-dropdown-btn,
+            .theme-toggle {
+                padding-left: 11px;
+                padding-right: 11px;
+            }
+        }
+    </style>
+
 </head>
 
 <body>
@@ -31,7 +803,9 @@
     <!-- =====================================================================
          HEADER
          ===================================================================== -->
+
     <header class="site-header">
+
         <div class="header-inner">
 
             <!-- Logo -->
@@ -41,76 +815,155 @@
 
             {% if user.is_authenticated %}
 
-            <!-- Account (moved to top on mobile) -->
+            <!-- Account -->
             <div class="header-account">
+
                 <div class="account-dropdown">
-                    <button type="button" class="account-button" id="account-button" aria-expanded="false">
+
+                    <button
+                        type="button"
+                        class="account-button"
+                        id="account-button"
+                        aria-expanded="false"
+                    >
                         <span class="account-icon">👤</span>
                         <span class="account-name">{{ user.username }}</span>
                         <span class="dropdown-arrow">▾</span>
                     </button>
 
-                    <div class="account-dropdown-content" id="account-dropdown-content">
+                    <div
+                        class="account-dropdown-content"
+                        id="account-dropdown-content"
+                    >
+
                         <div class="account-dropdown-header">
+
                             <strong>{{ user.username }}</strong>
+
                             {% if user.email %}
                                 <span>{{ user.email }}</span>
                             {% endif %}
+
                         </div>
 
                         {% if user.is_staff %}
+
                             <div class="account-dropdown-divider"></div>
-                            <a href="{% url 'password_change' %}">Change Password</a>
+
+                            <a href="{% url 'password_change' %}">
+                                Change Password
+                            </a>
+
                             <div class="account-dropdown-divider"></div>
-                            <a href="/admin/">Administration</a>
+
+                            <a href="/admin/">
+                                Administration
+                            </a>
+
                         {% endif %}
 
                         <div class="account-dropdown-divider"></div>
 
                         <form method="post" action="{% url 'logout' %}">
                             {% csrf_token %}
-                            <button type="submit" class="account-logout-button">Log Out</button>
+
+                            <button
+                                type="submit"
+                                class="account-logout-button"
+                            >
+                                Log Out
+                            </button>
+
                         </form>
+
                     </div>
+
                 </div>
+
             </div>
 
             <!-- Main Navigation -->
             <nav class="main-nav">
 
-                <a href="{% url 'dashboard' %}">Dashboard</a>
+                <a href="{% url 'dashboard' %}">
+                    Dashboard
+                </a>
 
                 <!-- Orders -->
                 <div class="nav-dropdown">
-                    <button type="button" class="nav-dropdown-btn" aria-expanded="false">
+
+                    <button
+                        type="button"
+                        class="nav-dropdown-btn"
+                        aria-expanded="false"
+                    >
                         Orders
                         <span class="dropdown-arrow">▾</span>
                     </button>
+
                     <div class="nav-dropdown-content">
-                        <a href="{% url 'order_list' %}">All Orders</a>
-                        <a href="{% url 'order_create' %}">+ New Order</a>
+
+                        <a href="{% url 'order_list' %}">
+                            All Orders
+                        </a>
+
+                        <a href="{% url 'order_create' %}">
+                            + New Order
+                        </a>
+
                     </div>
+
                 </div>
 
                 <!-- Customers -->
                 <div class="nav-dropdown">
-                    <button type="button" class="nav-dropdown-btn" aria-expanded="false">
+
+                    <button
+                        type="button"
+                        class="nav-dropdown-btn"
+                        aria-expanded="false"
+                    >
                         Customers
                         <span class="dropdown-arrow">▾</span>
                     </button>
+
                     <div class="nav-dropdown-content">
-                        <a href="{% url 'customer_list' %}">All Customers</a>
-                        <a href="{% url 'customer_create' %}">+ New Customer</a>
+
+                        <a href="{% url 'customer_list' %}">
+                            All Customers
+                        </a>
+
+                        <a href="{% url 'customer_create' %}">
+                            + New Customer
+                        </a>
+
                     </div>
+
                 </div>
 
-                <a href="{% url 'payment_list' %}">Payments</a>
-                <a href="{% url 'shipping_list' %}">Shipping</a>
-                <a href="{% url 'export_center' %}">Export</a>
-                <a href="{% url 'printing_list' %}">Printing</a>
+                <a href="{% url 'payment_list' %}">
+                    Payments
+                </a>
+
+                <a href="{% url 'shipping_list' %}">
+                    Shipping
+                </a>
+
+                <a href="{% url 'export_center' %}">
+                    Export
+                </a>
+
+                <a href="{% url 'printing_list' %}">
+                    Printing
+                </a>
 
                 <!-- Theme Toggle -->
-                <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                <button
+                    type="button"
+                    id="theme-toggle"
+                    class="theme-toggle"
+                    aria-label="Toggle theme"
+                >
                     <span id="theme-icon">☀</span>
                     <span id="theme-text">Light</span>
                 </button>
@@ -121,25 +974,42 @@
 
             <!-- Not logged in -->
             <nav class="main-nav">
-                <a href="{% url 'login' %}" class="login-nav-button">Login</a>
+
+                <a
+                    href="{% url 'login' %}"
+                    class="login-nav-button"
+                >
+                    Login
+                </a>
+
             </nav>
 
             {% endif %}
 
         </div>
+
     </header>
 
     <!-- =====================================================================
          MAIN
          ===================================================================== -->
+
     <main class="main-content">
 
         {% if messages %}
+
         <section class="messages">
+
             {% for message in messages %}
-                <div class="message">{{ message }}</div>
+
+                <div class="message">
+                    {{ message }}
+                </div>
+
             {% endfor %}
+
         </section>
+
         {% endif %}
 
         {% block content %}{% endblock %}
@@ -149,96 +1019,207 @@
     <!-- =====================================================================
          FOOTER
          ===================================================================== -->
+
     <footer class="site-footer">
+
         <div class="footer-inner">
+
             <p>OrderBoard</p>
+
         </div>
+
     </footer>
 
     <!-- =====================================================================
          JAVASCRIPT
          ===================================================================== -->
+
     <script>
-        /* Nav Dropdowns */
+
+        /* ================================================================
+           NAV DROPDOWNS
+           ================================================================ */
+
         document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+
             const btn = dropdown.querySelector('.nav-dropdown-btn');
 
             btn.addEventListener('click', (e) => {
+
                 e.stopPropagation();
                 e.preventDefault();
 
                 const isOpen = dropdown.classList.contains('open');
 
                 document.querySelectorAll('.nav-dropdown').forEach(d => {
+
                     d.classList.remove('open');
-                    d.querySelector('.nav-dropdown-btn').setAttribute('aria-expanded', 'false');
+
+                    d.querySelector('.nav-dropdown-btn')
+                        .setAttribute('aria-expanded', 'false');
+
                 });
 
                 if (!isOpen) {
+
                     dropdown.classList.add('open');
+
                     btn.setAttribute('aria-expanded', 'true');
+
                 }
+
             });
+
         });
 
-        /* Account Dropdown */
-        const accountButton = document.getElementById('account-button');
-        const accountDropdown = document.getElementById('account-dropdown-content');
+
+        /* ================================================================
+           ACCOUNT DROPDOWN
+           ================================================================ */
+
+        const accountButton =
+            document.getElementById('account-button');
+
+        const accountDropdown =
+            document.getElementById('account-dropdown-content');
+
 
         if (accountButton && accountDropdown) {
+
             accountButton.addEventListener('click', (e) => {
+
                 e.stopPropagation();
-                const isOpen = accountDropdown.classList.contains('open');
+
+                const isOpen =
+                    accountDropdown.classList.contains('open');
+
                 accountDropdown.classList.toggle('open');
-                accountButton.setAttribute('aria-expanded', String(!isOpen));
+
+                accountButton.setAttribute(
+                    'aria-expanded',
+                    String(!isOpen)
+                );
+
             });
+
         }
 
-        /* Close dropdowns when clicking outside */
+
+        /* ================================================================
+           CLOSE DROPDOWNS WHEN CLICKING OUTSIDE
+           ================================================================ */
+
         document.addEventListener('click', () => {
+
             document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
+
                 dropdown.classList.remove('open');
-                dropdown.querySelector('.nav-dropdown-btn').setAttribute('aria-expanded', 'false');
+
+                dropdown.querySelector('.nav-dropdown-btn')
+                    .setAttribute('aria-expanded', 'false');
+
             });
 
             if (accountDropdown && accountButton) {
+
                 accountDropdown.classList.remove('open');
-                accountButton.setAttribute('aria-expanded', 'false');
+
+                accountButton.setAttribute(
+                    'aria-expanded',
+                    'false'
+                );
+
             }
+
         });
 
-        /* Theme Toggle */
-        const themeToggle = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
-        const themeText = document.getElementById('theme-text');
+
+        /* ================================================================
+           THEME TOGGLE
+           ================================================================ */
+
+        const themeToggle =
+            document.getElementById('theme-toggle');
+
+        const themeIcon =
+            document.getElementById('theme-icon');
+
+        const themeText =
+            document.getElementById('theme-text');
+
 
         function applyTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            document.body.setAttribute('data-theme', theme);
+
+            document.documentElement.setAttribute(
+                'data-theme',
+                theme
+            );
+
+            document.body.setAttribute(
+                'data-theme',
+                theme
+            );
 
             if (theme === 'dark') {
-                if (themeIcon) themeIcon.textContent = '☾';
-                if (themeText) themeText.textContent = 'Dark';
+
+                if (themeIcon) {
+                    themeIcon.textContent = '☾';
+                }
+
+                if (themeText) {
+                    themeText.textContent = 'Dark';
+                }
+
             } else {
-                if (themeIcon) themeIcon.textContent = '☀';
-                if (themeText) themeText.textContent = 'Light';
+
+                if (themeIcon) {
+                    themeIcon.textContent = '☀';
+                }
+
+                if (themeText) {
+                    themeText.textContent = 'Light';
+                }
+
             }
+
         }
+
 
         if (themeToggle) {
-            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+
+            const currentTheme =
+                document.documentElement.getAttribute('data-theme')
+                || 'light';
+
             applyTheme(currentTheme);
 
+
             themeToggle.addEventListener('click', () => {
-                const current = document.documentElement.getAttribute('data-theme');
-                const next = current === 'dark' ? 'light' : 'dark';
+
+                const current =
+                    document.documentElement
+                        .getAttribute('data-theme');
+
+                const next =
+                    current === 'dark'
+                        ? 'light'
+                        : 'dark';
+
                 applyTheme(next);
-                localStorage.setItem('orderboard-theme', next);
+
+                localStorage.setItem(
+                    'orderboard-theme',
+                    next
+                );
+
             });
+
         }
+
     </script>
 
     {% block extra_js %}{% endblock %}
 
 </body>
+
 </html>
