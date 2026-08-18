@@ -124,7 +124,6 @@ textarea {
     display: flex;
     align-items: center;
     gap: 32px;
-    flex-wrap: wrap;
 }
 
 .site-title {
@@ -145,133 +144,11 @@ textarea {
 }
 
 /* ==========================================================================
-   HEADER ACCOUNT
-   ========================================================================== */
-
-.header-account {
-    margin-left: auto;
-    position: relative;
-    flex-shrink: 0;
-}
-
-.account-dropdown {
-    position: relative;
-}
-
-.account-button {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    height: 38px;
-    padding: 0 12px;
-    border: 0;
-    border-radius: 6px;
-    background: transparent;
-    color: #cbd5e1;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease;
-    white-space: nowrap;
-}
-
-.account-button:hover {
-    background: var(--header-hover);
-    color: white;
-}
-
-.account-icon {
-    font-size: 16px;
-}
-
-.account-name {
-    white-space: nowrap;
-}
-
-.account-dropdown-content {
-    display: none;
-    position: absolute;
-    top: calc(100% + 6px);
-    right: 0;
-    min-width: 210px;
-    padding: 5px;
-    background: var(--bg-surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
-    z-index: 3000;
-}
-
-.account-dropdown-content.open {
-    display: block;
-}
-
-.account-dropdown-header {
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 4px;
-}
-
-.account-dropdown-header strong {
-    display: block;
-    font-size: 14px;
-    color: var(--text-heading);
-}
-
-.account-dropdown-header span {
-    display: block;
-    margin-top: 2px;
-    font-size: 12px;
-    color: var(--text-muted);
-}
-
-.account-dropdown-divider {
-    height: 1px;
-    background: var(--border);
-    margin: 4px 0;
-}
-
-.account-dropdown-content a {
-    display: block;
-    padding: 9px 12px;
-    border-radius: 6px;
-    color: var(--text-main);
-    font-size: 14px;
-    font-weight: 500;
-    text-decoration: none;
-}
-
-.account-dropdown-content a:hover {
-    background: var(--bg-surface-secondary);
-    color: var(--link);
-}
-
-.account-logout-button {
-    width: 100%;
-    padding: 9px 12px;
-    border: 0;
-    border-radius: 6px;
-    background: transparent;
-    color: var(--danger);
-    font-size: 14px;
-    font-weight: 600;
-    text-align: left;
-    cursor: pointer;
-}
-
-.account-logout-button:hover {
-    background: #fee2e2;
-}
-
-[data-theme="dark"] .account-logout-button:hover {
-    background: #7f1d1d;
-}
-
-/* ==========================================================================
-   MAIN NAV - DESKTOP (horizontal)
+   MAIN NAV
    ========================================================================== */
 
 .main-nav {
+    margin-left: auto;
     display: flex;
     align-items: center;
     gap: 4px;
@@ -307,16 +184,6 @@ textarea {
     color: white;
 }
 
-.login-nav-button {
-    background: #2563eb !important;
-    color: #ffffff !important;
-}
-
-.login-nav-button:hover {
-    background: #1d4ed8 !important;
-    color: #ffffff !important;
-}
-
 /* ==========================================================================
    DROPDOWN
    ========================================================================== */
@@ -330,6 +197,7 @@ textarea {
     width: auto;
 }
 
+/* Hidden by default */
 .nav-dropdown-content {
     display: none;
     position: absolute;
@@ -345,6 +213,7 @@ textarea {
     z-index: 2000;
 }
 
+/* Show when open */
 .nav-dropdown.open > .nav-dropdown-content {
     display: flex;
     flex-direction: column;
@@ -481,7 +350,7 @@ section {
 }
 
 /* ==========================================================================
-   DASHBOARD
+   DASHBOARD - FIXED FOR MOBILE
    ========================================================================== */
 
 .dashboard-grid {
@@ -502,6 +371,7 @@ section {
     transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
     width: 100%;
     min-width: 0;
+    overflow: hidden;
 }
 
 .dashboard-card:hover {
@@ -516,6 +386,7 @@ section {
     color: var(--text-secondary);
     font-size: 13px;
     font-weight: 600;
+    line-height: 1.3;
 }
 
 .big-number {
@@ -523,8 +394,9 @@ section {
     color: var(--text-heading);
     font-size: 30px;
     font-weight: 800;
-    line-height: 1;
+    line-height: 1.1;
     word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .card-link {
@@ -918,7 +790,7 @@ button.warning:hover {
     gap: 14px;
 }
 
-.filter-grid>div {
+.filter-grid > div {
     min-width: 0;
 }
 
@@ -1186,6 +1058,78 @@ button.warning:hover {
 }
 
 /* ==========================================================================
+   PRINT PAGE
+   ========================================================================== */
+
+.print-page.orientation-portrait {
+    width: 210mm;
+    height: 297mm;
+    min-width: 210mm;
+    min-height: 297mm;
+    max-width: 210mm;
+    max-height: 297mm;
+}
+
+.print-page.orientation-landscape {
+    width: 297mm;
+    height: 210mm;
+    min-width: 297mm;
+    min-height: 210mm;
+    max-width: 297mm;
+    max-height: 210mm;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: repeat(var(--label-rows, 3), minmax(0, 1fr));
+}
+
+.print-page.orientation-landscape .shipping-label {
+    padding: calc(3mm * var(--label-scale));
+    gap: calc(1.5mm * var(--label-scale));
+}
+
+.print-page.orientation-landscape.labels-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    --label-scale: 1.3;
+}
+
+.print-page.orientation-landscape.labels-5,
+.print-page.orientation-landscape.labels-6 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    --label-scale: 1;
+}
+
+.print-page.orientation-landscape.labels-7,
+.print-page.orientation-landscape.labels-8 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    --label-scale: 0.85;
+}
+
+.print-page.orientation-landscape .label-top-section {
+    max-height: calc(25mm * var(--label-scale));
+}
+
+.print-page.orientation-landscape .image-placeholder {
+    min-height: calc(10mm * var(--label-scale));
+}
+
+@media print {
+    @page landscape {
+        size: A4 landscape;
+        margin: 0;
+    }
+
+    .print-page.orientation-landscape {
+        width: 297mm !important;
+        height: 210mm !important;
+        min-width: 297mm !important;
+        min-height: 210mm !important;
+        max-width: 297mm !important;
+        max-height: 210mm !important;
+        page: landscape;
+    }
+}
+
+/* ==========================================================================
    TABLET
    ========================================================================== */
 
@@ -1223,7 +1167,7 @@ button.warning:hover {
 }
 
 /* ==========================================================================
-   MOBILE - FIXED (Table layout for nav buttons)
+   MOBILE - FIXED
    ========================================================================== */
 
 @media (max-width: 700px) {
@@ -1238,108 +1182,40 @@ button.warning:hover {
     .header-inner {
         flex-direction: column;
         align-items: stretch;
-        gap: 10px;
-        padding: 12px 14px;
-        min-height: auto;
+        gap: 12px;
+        padding: 14px;
     }
 
     .site-title {
         text-align: center;
-        order: 0;
     }
 
     .site-title a {
-        font-size: 20px;
+        font-size: 21px;
     }
 
-    /* Account dropdown - full width on top */
-    .header-account {
-        order: 1;
-        width: 100%;
-        margin-left: 0;
-    }
-
-    .account-dropdown {
-        width: 100%;
-    }
-
-    .account-button {
-        width: 100%;
-        justify-content: center;
-        background: rgba(255, 255, 255, 0.06);
-        height: 40px;
-        min-height: 40px;
-        font-size: 14px;
-    }
-
-    .account-button:hover {
-        background: rgba(255, 255, 255, 0.12);
-    }
-
-    .account-dropdown-content {
-        position: static;
-        width: 100%;
-        margin-top: 4px;
-        box-shadow: none;
-        background-color: #ffffff !important;
-        background: #ffffff !important;
-    }
-
-    [data-theme="dark"] .account-dropdown-content {
-        background-color: #1e293b !important;
-        background: #1e293b !important;
-    }
-
-    .account-dropdown-content a {
-        text-align: center;
-        color: #1e293b !important;
-    }
-
-    [data-theme="dark"] .account-dropdown-content a {
-        color: #e2e8f0 !important;
-    }
-
-    .account-logout-button {
-        text-align: center;
-    }
-
-    /* ============================================================
-       MAIN NAV - GRID LAYOUT (2 columns like a table)
-       ============================================================ */
     .main-nav {
-        order: 2;
         width: 100%;
         margin-left: 0;
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 5px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
         flex-shrink: 0;
-    }
-
-    /* All nav items fill their grid cells */
-    .main-nav > a,
-    .nav-dropdown,
-    .theme-toggle {
-        width: 100%;
     }
 
     .main-nav > a,
     .nav-dropdown-btn,
     .theme-toggle {
         width: 100%;
-        height: 40px;
-        min-height: 40px;
-        padding: 6px 4px;
+        height: 42px;
+        min-height: 42px;
+        padding: 8px 6px;
         background: rgba(255, 255, 255, 0.06);
         text-align: center;
-        font-size: 12px;
+        font-size: 13px;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 
     .main-nav > a:hover,
@@ -1348,13 +1224,8 @@ button.warning:hover {
         background: rgba(255, 255, 255, 0.12);
     }
 
-    /* Dropdown buttons take full width */
     .nav-dropdown {
-        position: relative;
-    }
-
-    .nav-dropdown-btn {
-        width: 100% !important;
+        width: 100%;
     }
 
     .nav-dropdown-content {
@@ -1375,13 +1246,11 @@ button.warning:hover {
     }
 
     .nav-dropdown-content a {
-        min-height: 38px;
+        min-height: 40px;
         color: var(--text-main);
         justify-content: center;
         text-align: center;
         white-space: nowrap;
-        font-size: 12px;
-        padding: 8px 12px;
     }
 
     .nav-dropdown-content a:hover {
@@ -1394,51 +1263,50 @@ button.warning:hover {
     }
 
     .main-content {
-        padding: 16px 10px 30px;
+        padding: 20px 12px 40px;
         overflow-x: hidden;
     }
 
     .page-header {
         flex-direction: column;
         align-items: stretch;
-        gap: 10px;
+        gap: 12px;
     }
 
     .page-header h2 {
-        font-size: 22px;
+        font-size: 24px;
     }
 
     section {
-        padding: 14px;
-        margin-bottom: 14px;
+        padding: 16px;
+        margin-bottom: 18px;
         overflow-x: hidden;
     }
 
-    /* Dashboard cards - 2 columns */
+    /* FIXED: Dashboard cards - 2 columns, no overflow */
     .dashboard-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
         width: 100%;
     }
 
     .dashboard-card {
-        padding: 12px 10px;
+        padding: 14px 12px;
         width: 100%;
         min-width: 0;
     }
 
     .dashboard-card h3 {
-        font-size: 11px;
-        margin: 0;
+        font-size: 12px;
     }
 
     .big-number {
-        font-size: 22px;
-        margin: 6px 0 4px;
+        font-size: 24px;
+        margin: 8px 0 6px;
     }
 
     .card-link {
-        font-size: 10px;
+        font-size: 11px;
     }
 
     .responsive-table {
@@ -1448,27 +1316,25 @@ button.warning:hover {
     }
 
     .responsive-table table {
-        min-width: 580px;
+        min-width: 620px;
         width: 100%;
     }
 
     th,
     td {
-        padding: 8px 8px;
-        font-size: 12px;
+        padding: 9px 10px;
     }
 
     input,
     select,
     textarea {
         max-width: none;
-        font-size: 16px;
+        font-size: 16px; /* prevents iOS zoom */
     }
 
     button,
     .button {
-        min-height: 40px;
-        font-size: 13px;
+        min-height: 44px;
     }
 
     .filter-grid {
@@ -1482,27 +1348,25 @@ button.warning:hover {
     .filter-actions {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 8px;
     }
 
     .photo-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
     }
 
     .photo-card {
-        padding: 6px;
+        padding: 8px;
     }
 
     .photo-card img {
-        height: 130px;
+        height: 150px;
     }
 
     .button-group {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         width: 100%;
-        gap: 6px;
     }
 
     .button-group .button,
@@ -1512,26 +1376,26 @@ button.warning:hover {
 }
 
 /* ==========================================================================
-   SMALL PHONES (480px and below)
+   SMALL PHONES
    ========================================================================== */
 
 @media (max-width: 480px) {
     .main-content {
-        padding: 12px 6px 20px;
+        padding: 15px 8px 30px;
     }
 
     section {
-        padding: 10px;
+        padding: 13px;
     }
 
-    /* Dashboard - single column on very small phones */
+    /* FIXED: Single column on very small phones */
     .dashboard-grid {
-        grid-template-columns: 1fr;
-        gap: 6px;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
     }
 
     .dashboard-card {
-        padding: 12px 10px;
+        padding: 14px 12px;
     }
 
     .dashboard-card h3 {
@@ -1539,26 +1403,11 @@ button.warning:hover {
     }
 
     .big-number {
-        font-size: 24px;
+        font-size: 26px;
     }
 
     .card-link {
-        font-size: 11px;
-    }
-
-    /* Nav stays 2 columns on small phones */
-    .main-nav {
-        grid-template-columns: 1fr 1fr;
-        gap: 4px;
-    }
-
-    .main-nav > a,
-    .nav-dropdown-btn,
-    .theme-toggle {
-        font-size: 11px;
-        padding: 5px 3px;
-        height: 36px;
-        min-height: 36px;
+        font-size: 12px;
     }
 
     .photo-grid {
@@ -1567,7 +1416,7 @@ button.warning:hover {
 
     .photo-card img {
         height: auto;
-        max-height: 250px;
+        max-height: 300px;
     }
 
     .button-group {
@@ -1578,23 +1427,30 @@ button.warning:hover {
         grid-template-columns: 1fr;
     }
 
-    .account-button {
-        font-size: 13px;
-        height: 38px;
-        min-height: 38px;
+    .main-nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 5px;
+    }
+
+    .main-nav > a,
+    .nav-dropdown-btn,
+    .theme-toggle {
+        font-size: 12px;
+        padding: 6px 4px;
+        height: 40px;
+        min-height: 40px;
     }
 }
 
 /* ==========================================================================
-   VERY SMALL PHONES (350px and below)
+   VERY SMALL PHONES
    ========================================================================== */
 
 @media (max-width: 350px) {
     .dashboard-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
     }
 
-    /* Nav becomes single column on tiny phones */
     .main-nav {
         grid-template-columns: 1fr;
     }
@@ -2299,6 +2155,7 @@ button.warning:hover {
         color: #000000 !important;
     }
 
+    /* Final force for print */
     .shipping-label,
     .shipping-label * {
         color: #000000 !important;
@@ -2381,8 +2238,192 @@ button.warning:hover {
     color: #fca5a5;
 }
 
+/* Login button shown in the navigation when logged out */
+
+.login-nav-button {
+    background: #2563eb !important;
+    color: #ffffff !important;
+}
+
+.login-nav-button:hover {
+    background: #1d4ed8 !important;
+    color: #ffffff !important;
+}
+
 /* ==========================================================================
-   EXPORT PAGE STYLES
+   HEADER ACCOUNT / NAVIGATION LAYOUT
+   ========================================================================== */
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/* ==========================================================================
+   ACCOUNT DROPDOWN (solid, simple)
+   ========================================================================== */
+
+.header-account {
+    margin-left: 28px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.account-dropdown {
+    position: relative;
+}
+
+.account-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 38px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #cbd5e1;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.account-button:hover {
+    background: var(--header-hover);
+    color: white;
+}
+
+.account-icon {
+    font-size: 16px;
+}
+
+.account-name {
+    white-space: nowrap;
+}
+
+/* The dropdown panel itself */
+.account-dropdown-content {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 210px;
+    padding: 5px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
+    z-index: 3000;
+}
+
+.account-dropdown-content.open {
+    display: block;
+}
+
+/* Header inside the dropdown */
+.account-dropdown-header {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+}
+
+.account-dropdown-header strong {
+    display: block;
+    font-size: 14px;
+    color: var(--text-heading);
+}
+
+.account-dropdown-header span {
+    display: block;
+    margin-top: 2px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.account-dropdown-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
+}
+
+/* Links */
+.account-dropdown-content a {
+    display: block;
+    padding: 9px 12px;
+    border-radius: 6px;
+    color: var(--text-main);
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.account-dropdown-content a:hover {
+    background: var(--bg-surface-secondary);
+    color: var(--link);
+}
+
+/* Logout button */
+.account-logout-button {
+    width: 100%;
+    padding: 9px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--danger);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+
+.account-logout-button:hover {
+    background: #fee2e2;
+}
+
+[data-theme="dark"] .account-logout-button:hover {
+    background: #7f1d1d;
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+    .header-account {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .account-dropdown {
+        width: 100%;
+    }
+
+    .account-button {
+        width: 100%;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.06);
+        height: 42px;
+    }
+
+    .account-button:hover {
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    .account-dropdown-content {
+        position: static;
+        width: 100%;
+        margin-top: 4px;
+        box-shadow: none;
+        background: var(--bg-surface);
+    }
+
+    .account-dropdown-content a,
+    .account-logout-button {
+        text-align: center;
+    }
+}
+
+/* ==========================================================================
+   EXPORT PAGE STYLES - Theme-aware
    ========================================================================== */
 
 .export-checkbox-grid {
