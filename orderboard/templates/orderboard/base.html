@@ -4,368 +4,648 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}OrderBoard{% endblock %}</title>
 
-    <!-- Theme -->
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {% block title %}OrderBoard{% endblock %}
+    </title>
+
+
+    <!-- ================================================================
+         THEME
+         ================================================================ -->
+
     <script>
+
         (function () {
+
             try {
-                const saved = localStorage.getItem('orderboard-theme');
-                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                const theme = saved || (prefersDark ? 'dark' : 'light');
-                document.documentElement.setAttribute('data-theme', theme);
+
+                const saved =
+                    localStorage.getItem(
+                        'orderboard-theme'
+                    );
+
+                const prefersDark =
+                    window.matchMedia(
+                        '(prefers-color-scheme: dark)'
+                    ).matches;
+
+                const theme =
+                    saved ||
+                    (prefersDark ? 'dark' : 'light');
+
+                document.documentElement.setAttribute(
+                    'data-theme',
+                    theme
+                );
+
             } catch (e) {
-                document.documentElement.setAttribute('data-theme', 'light');
+
+                document.documentElement.setAttribute(
+                    'data-theme',
+                    'light'
+                );
+
             }
+
         })();
+
     </script>
 
-    <link rel="stylesheet" href="{% static 'orderboard/css/style.css' %}?v=10">
+
+    <link rel="stylesheet" href="{% static 'orderboard/css/style.css' %}?v=5">
+
     {% block extra_css %}{% endblock %}
-
-    <style>
-        /* ============================================================
-           MOBILE DROPDOWN FIXES - OVERLAY NOT PUSH
-           ============================================================ */
-
-        @media (max-width: 700px) {
-
-            /* Fix nav dropdowns to overlay, not push other buttons */
-            .nav-dropdown {
-                position: relative !important;
-                z-index: 100 !important;
-            }
-
-            .nav-dropdown-btn {
-                width: auto !important;
-            }
-
-            /* Dropdown content - FIXED position so it overlays */
-            .nav-dropdown-content {
-                display: none !important;
-                position: fixed !important;
-                top: auto !important;
-                left: 50% !important;
-                transform: translateX(-50%) !important;
-                width: calc(100vw - 28px) !important;
-                max-width: 320px !important;
-                margin-top: 4px !important;
-                padding: 5px !important;
-                background: #ffffff !important;
-                border: 1px solid #e2e8f0 !important;
-                border-radius: 6px !important;
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25) !important;
-                z-index: 9999 !important;
-                max-height: 300px !important;
-                overflow-y: auto !important;
-            }
-
-            [data-theme="dark"] .nav-dropdown-content {
-                background: #1e293b !important;
-                border-color: #334155 !important;
-            }
-
-            .nav-dropdown.open > .nav-dropdown-content {
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 2px !important;
-            }
-
-            .nav-dropdown-content a {
-                min-height: 38px !important;
-                color: #1e293b !important;
-                justify-content: center !important;
-                text-align: center !important;
-                white-space: nowrap !important;
-                font-size: 12px !important;
-                padding: 8px 14px !important;
-                border-radius: 4px !important;
-            }
-
-            [data-theme="dark"] .nav-dropdown-content a {
-                color: #e2e8f0 !important;
-            }
-
-            .nav-dropdown-content a:hover {
-                background: #f8fafc !important;
-                color: #2563eb !important;
-            }
-
-            [data-theme="dark"] .nav-dropdown-content a:hover {
-                background: #273449 !important;
-                color: #60a5fa !important;
-            }
-
-            /* Fix for right-side dropdowns */
-            .nav-dropdown:last-child .nav-dropdown-content,
-            .nav-dropdown:nth-last-child(2) .nav-dropdown-content {
-                left: auto !important;
-                right: 0 !important;
-                transform: none !important;
-            }
-
-            /* Keep nav scrollable horizontally */
-            .main-nav {
-                overflow-x: auto !important;
-                flex-wrap: nowrap !important;
-                -webkit-overflow-scrolling: touch !important;
-                scrollbar-width: none !important;
-            }
-
-            .main-nav::-webkit-scrollbar {
-                display: none !important;
-            }
-
-            .main-nav > a,
-            .main-nav > .nav-dropdown,
-            .main-nav > .theme-toggle {
-                flex: 0 0 auto !important;
-            }
-
-            .main-nav > a,
-            .nav-dropdown-btn,
-            .theme-toggle {
-                white-space: nowrap !important;
-            }
-        }
-
-        /* Small phones */
-        @media (max-width: 480px) {
-            .nav-dropdown-content {
-                max-width: 280px !important;
-            }
-
-            .nav-dropdown-content a {
-                font-size: 11px !important;
-                padding: 6px 12px !important;
-                min-height: 34px !important;
-            }
-        }
-
-        /* Very small phones */
-        @media (max-width: 350px) {
-            .nav-dropdown-content {
-                max-width: 240px !important;
-                min-width: 160px !important;
-            }
-        }
-    </style>
 
 </head>
 
+
 <body>
 
+
     <!-- =====================================================================
-         HEADER
-         ===================================================================== -->
+     HEADER
+     ===================================================================== -->
+
     <header class="site-header">
+
         <div class="header-inner">
 
-            <!-- Logo -->
+
+            <!-- =============================================================
+             LOGO
+             ============================================================= -->
+
             <h1 class="site-title">
-                <a href="{% url 'dashboard' %}">OrderBoard</a>
+
+                <a href="{% url 'dashboard' %}">
+                    OrderBoard
+                </a>
+
             </h1>
+
 
             {% if user.is_authenticated %}
 
-            <!-- Account -->
+
+            <!-- =========================================================
+                 LEFT SIDE ACCOUNT
+                 ========================================================= -->
+
             <div class="header-account">
+
                 <div class="account-dropdown">
+
                     <button type="button" class="account-button" id="account-button" aria-expanded="false">
-                        <span class="account-icon">👤</span>
-                        <span class="account-name">{{ user.username }}</span>
-                        <span class="dropdown-arrow">▾</span>
+
+                        <span class="account-icon">
+                            👤
+                        </span>
+
+                        <span class="account-name">
+                            {{ user.username }}
+                        </span>
+
+                        <span class="dropdown-arrow">
+                            ▾
+                        </span>
+
                     </button>
+
 
                     <div class="account-dropdown-content" id="account-dropdown-content">
+
                         <div class="account-dropdown-header">
-                            <strong>{{ user.username }}</strong>
+
+                            <strong>
+                                {{ user.username }}
+                            </strong>
+
                             {% if user.email %}
-                                <span>{{ user.email }}</span>
+
+                            <span>
+                                {{ user.email }}
+                            </span>
+
                             {% endif %}
+
                         </div>
 
+
+                        <!-- =================================================
+                             ADMIN-ONLY OPTIONS
+                             ================================================= -->
+
                         {% if user.is_staff %}
-                            <div class="account-dropdown-divider"></div>
-                            <a href="{% url 'password_change' %}">Change Password</a>
-                            <div class="account-dropdown-divider"></div>
-                            <a href="/admin/">Administration</a>
+
+                        <div class="account-dropdown-divider">
+                        </div>
+
+                        <a href="{% url 'password_change' %}">
+                            Change Password
+                        </a>
+
+                        <div class="account-dropdown-divider">
+                        </div>
+
+                        <a href="/admin/">
+                            Administration
+                        </a>
+
                         {% endif %}
 
-                        <div class="account-dropdown-divider"></div>
+
+                        <!-- =================================================
+                             LOGOUT
+                             ================================================= -->
+
+                        <div class="account-dropdown-divider">
+                        </div>
+
 
                         <form method="post" action="{% url 'logout' %}">
+
                             {% csrf_token %}
-                            <button type="submit" class="account-logout-button">Log Out</button>
+
+                            <button type="submit" class="account-logout-button">
+                                Log Out
+                            </button>
+
                         </form>
+
                     </div>
+
                 </div>
+
             </div>
 
-            <!-- Main Navigation -->
+
+            <!-- =========================================================
+                 RIGHT SIDE NAVIGATION - FIXED FOR MOBILE
+                 ========================================================= -->
+
             <nav class="main-nav">
 
-                <a href="{% url 'dashboard' %}">Dashboard</a>
+
+                <a href="{% url 'dashboard' %}">
+                    Dashboard
+                </a>
+
 
                 <!-- Orders -->
+
                 <div class="nav-dropdown">
+
                     <button type="button" class="nav-dropdown-btn" aria-expanded="false">
+
                         Orders
-                        <span class="dropdown-arrow">▾</span>
+
+                        <span class="dropdown-arrow">
+                            ▾
+                        </span>
+
                     </button>
+
+
                     <div class="nav-dropdown-content">
-                        <a href="{% url 'order_list' %}">All Orders</a>
-                        <a href="{% url 'order_create' %}">+ New Order</a>
+
+                        <a href="{% url 'order_list' %}">
+                            All Orders
+                        </a>
+
+                        <a href="{% url 'order_create' %}">
+                            + New Order
+                        </a>
+
                     </div>
+
                 </div>
+
 
                 <!-- Customers -->
+
                 <div class="nav-dropdown">
+
                     <button type="button" class="nav-dropdown-btn" aria-expanded="false">
+
                         Customers
-                        <span class="dropdown-arrow">▾</span>
+
+                        <span class="dropdown-arrow">
+                            ▾
+                        </span>
+
                     </button>
+
+
                     <div class="nav-dropdown-content">
-                        <a href="{% url 'customer_list' %}">All Customers</a>
-                        <a href="{% url 'customer_create' %}">+ New Customer</a>
+
+                        <a href="{% url 'customer_list' %}">
+                            All Customers
+                        </a>
+
+                        <a href="{% url 'customer_create' %}">
+                            + New Customer
+                        </a>
+
                     </div>
+
                 </div>
 
-                <a href="{% url 'payment_list' %}">Payments</a>
-                <a href="{% url 'shipping_list' %}">Shipping</a>
-                <a href="{% url 'export_center' %}">Export</a>
-                <a href="{% url 'printing_list' %}">Printing</a>
 
-                <!-- Theme Toggle -->
+                <a href="{% url 'payment_list' %}">
+                    Payments
+                </a>
+
+
+                <a href="{% url 'shipping_list' %}">
+                    Shipping
+                </a>
+
+                <a href="{% url 'export_center' %}">
+                    Export
+                </a>
+
+                <a href="{% url 'printing_list' %}">
+                    Printing
+                </a>
+
+
+                <!-- Theme -->
+
                 <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
-                    <span id="theme-icon">☀</span>
-                    <span id="theme-text">Light</span>
+
+                    <span id="theme-icon">
+                        ☀
+                    </span>
+
+                    <span id="theme-text">
+                        Light
+                    </span>
+
                 </button>
 
+
             </nav>
+
 
             {% else %}
 
-            <!-- Not logged in -->
+
+            <!-- =========================================================
+                 NOT LOGGED IN
+                 ========================================================= -->
+
             <nav class="main-nav">
-                <a href="{% url 'login' %}" class="login-nav-button">Login</a>
+
+                <a href="{% url 'login' %}" class="login-nav-button">
+                    Login
+                </a>
+
             </nav>
+
 
             {% endif %}
 
+
         </div>
+
     </header>
 
+
     <!-- =====================================================================
-         MAIN
-         ===================================================================== -->
+     MAIN
+     ===================================================================== -->
+
     <main class="main-content">
 
+
         {% if messages %}
+
         <section class="messages">
+
             {% for message in messages %}
-                <div class="message">{{ message }}</div>
+
+            <div class="message">
+
+                {{ message }}
+
+            </div>
+
             {% endfor %}
+
         </section>
+
         {% endif %}
+
 
         {% block content %}{% endblock %}
 
+
     </main>
 
+
     <!-- =====================================================================
-         FOOTER
-         ===================================================================== -->
+     FOOTER
+     ===================================================================== -->
+
     <footer class="site-footer">
+
         <div class="footer-inner">
-            <p>OrderBoard</p>
+
+            <p>
+                OrderBoard
+            </p>
+
         </div>
+
     </footer>
 
+
     <!-- =====================================================================
-         JAVASCRIPT
-         ===================================================================== -->
+     JAVASCRIPT
+     ===================================================================== -->
+
     <script>
-        /* Nav Dropdowns */
-        document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
-            const btn = dropdown.querySelector('.nav-dropdown-btn');
 
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                e.preventDefault();
 
-                const isOpen = dropdown.classList.contains('open');
+        /* ==========================================================================
+           NAV DROPDOWNS
+           ========================================================================== */
 
-                document.querySelectorAll('.nav-dropdown').forEach(d => {
-                    d.classList.remove('open');
-                    d.querySelector('.nav-dropdown-btn').setAttribute('aria-expanded', 'false');
-                });
+        document
+            .querySelectorAll('.nav-dropdown')
+            .forEach(dropdown => {
 
-                if (!isOpen) {
-                    dropdown.classList.add('open');
-                    btn.setAttribute('aria-expanded', 'true');
+                const btn =
+                    dropdown.querySelector(
+                        '.nav-dropdown-btn'
+                    );
+
+
+                btn.addEventListener(
+                    'click',
+                    (e) => {
+
+                        e.stopPropagation();
+                        e.preventDefault();
+
+
+                        const isOpen =
+                            dropdown.classList.contains(
+                                'open'
+                            );
+
+
+                        document
+                            .querySelectorAll('.nav-dropdown')
+                            .forEach(d => {
+
+                                d.classList.remove(
+                                    'open'
+                                );
+
+                                d.querySelector(
+                                    '.nav-dropdown-btn'
+                                ).setAttribute(
+                                    'aria-expanded',
+                                    'false'
+                                );
+
+                            });
+
+
+                        if (!isOpen) {
+
+                            dropdown.classList.add(
+                                'open'
+                            );
+
+                            btn.setAttribute(
+                                'aria-expanded',
+                                'true'
+                            );
+
+                        }
+
+                    }
+                );
+
+            });
+
+
+        /* ==========================================================================
+           ACCOUNT DROPDOWN
+           ========================================================================== */
+
+        const accountButton =
+            document.getElementById(
+                'account-button'
+            );
+
+        const accountDropdown =
+            document.getElementById(
+                'account-dropdown-content'
+            );
+
+
+        if (
+            accountButton &&
+            accountDropdown
+        ) {
+
+            accountButton.addEventListener(
+                'click',
+                (e) => {
+
+                    e.stopPropagation();
+
+                    const isOpen =
+                        accountDropdown.classList.contains(
+                            'open'
+                        );
+
+
+                    accountDropdown.classList.toggle(
+                        'open'
+                    );
+
+
+                    accountButton.setAttribute(
+                        'aria-expanded',
+                        String(!isOpen)
+                    );
+
                 }
-            });
-        });
+            );
 
-        /* Account Dropdown */
-        const accountButton = document.getElementById('account-button');
-        const accountDropdown = document.getElementById('account-dropdown-content');
-
-        if (accountButton && accountDropdown) {
-            accountButton.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const isOpen = accountDropdown.classList.contains('open');
-                accountDropdown.classList.toggle('open');
-                accountButton.setAttribute('aria-expanded', String(!isOpen));
-            });
         }
 
-        /* Close dropdowns when clicking outside */
-        document.addEventListener('click', () => {
-            document.querySelectorAll('.nav-dropdown').forEach(dropdown => {
-                dropdown.classList.remove('open');
-                dropdown.querySelector('.nav-dropdown-btn').setAttribute('aria-expanded', 'false');
-            });
 
-            if (accountDropdown && accountButton) {
-                accountDropdown.classList.remove('open');
-                accountButton.setAttribute('aria-expanded', 'false');
+        /* ==========================================================================
+           CLOSE DROPDOWNS WHEN CLICKING OUTSIDE
+           ========================================================================== */
+
+        document.addEventListener(
+            'click',
+            () => {
+
+
+                document
+                    .querySelectorAll('.nav-dropdown')
+                    .forEach(dropdown => {
+
+                        dropdown.classList.remove(
+                            'open'
+                        );
+
+                        dropdown
+                            .querySelector(
+                                '.nav-dropdown-btn'
+                            )
+                            .setAttribute(
+                                'aria-expanded',
+                                'false'
+                            );
+
+                    });
+
+
+                if (
+                    accountDropdown &&
+                    accountButton
+                ) {
+
+                    accountDropdown.classList.remove(
+                        'open'
+                    );
+
+                    accountButton.setAttribute(
+                        'aria-expanded',
+                        'false'
+                    );
+
+                }
+
             }
-        });
+        );
 
-        /* Theme Toggle */
-        const themeToggle = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
-        const themeText = document.getElementById('theme-text');
+
+        /* ==========================================================================
+           THEME TOGGLE
+           ========================================================================== */
+
+        const themeToggle =
+            document.getElementById(
+                'theme-toggle'
+            );
+
+        const themeIcon =
+            document.getElementById(
+                'theme-icon'
+            );
+
+        const themeText =
+            document.getElementById(
+                'theme-text'
+            );
+
 
         function applyTheme(theme) {
-            document.documentElement.setAttribute('data-theme', theme);
-            document.body.setAttribute('data-theme', theme);
 
-            if (theme === 'dark') {
-                if (themeIcon) themeIcon.textContent = '☾';
-                if (themeText) themeText.textContent = 'Dark';
+
+            document.documentElement.setAttribute(
+                'data-theme',
+                theme
+            );
+
+
+            document.body.setAttribute(
+                'data-theme',
+                theme
+            );
+
+
+            if (
+                theme === 'dark'
+            ) {
+
+                if (themeIcon) {
+                    themeIcon.textContent = '☾';
+                }
+
+                if (themeText) {
+                    themeText.textContent = 'Dark';
+                }
+
             } else {
-                if (themeIcon) themeIcon.textContent = '☀';
-                if (themeText) themeText.textContent = 'Light';
+
+                if (themeIcon) {
+                    themeIcon.textContent = '☀';
+                }
+
+                if (themeText) {
+                    themeText.textContent = 'Light';
+                }
+
             }
+
         }
+
 
         if (themeToggle) {
-            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-            applyTheme(currentTheme);
 
-            themeToggle.addEventListener('click', () => {
-                const current = document.documentElement.getAttribute('data-theme');
-                const next = current === 'dark' ? 'light' : 'dark';
-                applyTheme(next);
-                localStorage.setItem('orderboard-theme', next);
-            });
+
+            const currentTheme =
+                document.documentElement
+                    .getAttribute(
+                        'data-theme'
+                    ) || 'light';
+
+
+            applyTheme(
+                currentTheme
+            );
+
+
+            themeToggle.addEventListener(
+                'click',
+                () => {
+
+
+                    const current =
+                        document.documentElement
+                            .getAttribute(
+                                'data-theme'
+                            );
+
+
+                    const next =
+                        current === 'dark'
+                            ? 'light'
+                            : 'dark';
+
+
+                    applyTheme(
+                        next
+                    );
+
+
+                    localStorage.setItem(
+                        'orderboard-theme',
+                        next
+                    );
+
+                }
+            );
+
         }
+
     </script>
+
 
     {% block extra_js %}{% endblock %}
 
