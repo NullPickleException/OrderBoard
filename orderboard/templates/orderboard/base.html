@@ -22,18 +22,15 @@
         })();
     </script>
 
-    <link rel="stylesheet" href="{% static 'orderboard/css/style.css' %}?v=6">
+    <link rel="stylesheet" href="{% static 'orderboard/css/style.css' %}?v=9">
     {% block extra_css %}{% endblock %}
 
     <style>
         /* ============================================================
-           STANDALONE HEADER STYLES
+           HEADER STYLES - FIXED DROPDOWN OVERLAY
            ============================================================ */
 
-        /* ============================================================
-           RESET
-           ============================================================ */
-
+        /* Reset */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -41,16 +38,14 @@
         }
 
         body {
-            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
-                Roboto, Arial, sans-serif;
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             background: #f1f5f9;
             color: #1e293b;
+            overflow-x: hidden;
+            width: 100%;
         }
 
-        /* ============================================================
-           HEADER
-           ============================================================ */
-
+        /* Header Container */
         .site-header {
             position: sticky;
             top: 0;
@@ -68,17 +63,13 @@
             margin: 0 auto;
             padding: 0 24px;
             min-height: 64px;
-
             display: flex;
             align-items: center;
             gap: 32px;
             flex-wrap: wrap;
         }
 
-        /* ============================================================
-           LOGO
-           ============================================================ */
-
+        /* Logo */
         .site-title {
             margin: 0;
             flex-shrink: 0;
@@ -116,22 +107,16 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-
             height: 38px;
             padding: 0 12px;
-
             border: 0;
             border-radius: 6px;
-
             background: transparent;
             color: #cbd5e1;
-
             font-size: 14px;
             font-weight: 600;
-
             cursor: pointer;
             transition: background-color 0.15s ease, color 0.15s ease;
-
             white-space: nowrap;
         }
 
@@ -156,20 +141,15 @@
 
         .account-dropdown-content {
             display: none;
-
             position: absolute;
             top: calc(100% + 6px);
             right: 0;
-
             min-width: 210px;
             padding: 5px;
-
             background: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
-
             box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
-
             z-index: 3000;
         }
 
@@ -222,14 +202,10 @@
         .account-dropdown-content a {
             display: block;
             padding: 9px 12px;
-
             border-radius: 6px;
-
             color: #1e293b;
-
             font-size: 14px;
             font-weight: 500;
-
             text-decoration: none;
         }
 
@@ -250,16 +226,12 @@
         .account-logout-button {
             width: 100%;
             padding: 9px 12px;
-
             border: 0;
             border-radius: 6px;
-
             background: transparent;
             color: #dc2626;
-
             font-size: 14px;
             font-weight: 600;
-
             text-align: left;
             cursor: pointer;
         }
@@ -273,14 +245,13 @@
         }
 
         /* ============================================================
-           MAIN NAV
+           MAIN NAV - DESKTOP (horizontal)
            ============================================================ */
 
         .main-nav {
             display: flex;
             align-items: center;
             gap: 4px;
-
             flex-shrink: 0;
         }
 
@@ -290,30 +261,20 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-
             height: 38px;
             min-height: 38px;
-
             padding: 0 12px;
-
             border: 0;
             border-radius: 6px;
-
             background: transparent;
             color: #cbd5e1;
-
             font-size: 14px;
             font-weight: 600;
-
             white-space: nowrap;
             line-height: 1;
-
             cursor: pointer;
             text-decoration: none;
-
-            transition:
-                background-color 0.15s ease,
-                color 0.15s ease;
+            transition: background-color 0.15s ease, color 0.15s ease;
         }
 
         .main-nav > a:hover,
@@ -334,7 +295,7 @@
         }
 
         /* ============================================================
-           NAV DROPDOWN
+           DROPDOWN
            ============================================================ */
 
         .nav-dropdown {
@@ -348,20 +309,15 @@
 
         .nav-dropdown-content {
             display: none;
-
             position: absolute;
             top: calc(100% + 6px);
             left: 0;
-
             min-width: 190px;
             padding: 5px;
-
             background: #ffffff;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
-
             box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
-
             overflow: hidden;
             z-index: 2000;
         }
@@ -380,23 +336,15 @@
         .nav-dropdown-content a {
             display: flex;
             align-items: center;
-
             min-height: 40px;
             padding: 9px 12px;
-
             border-radius: 6px;
-
             color: #1e293b;
-
             font-size: 14px;
             font-weight: 600;
-
             white-space: nowrap;
+            transition: background-color 0.15s ease, color 0.15s ease;
             text-decoration: none;
-
-            transition:
-                background-color 0.15s ease,
-                color 0.15s ease;
         }
 
         [data-theme="dark"] .nav-dropdown-content a {
@@ -434,24 +382,15 @@
             max-width: 1400px;
             margin: 0 auto;
             padding: 32px 24px 60px;
-
-            /*
-             * Prevent horizontal overflow from the main page.
-             * The navigation gets its own scrolling area on mobile.
-             */
             overflow-x: hidden;
         }
 
         /* ============================================================
-           MOBILE
+           MOBILE RESPONSIVE - FIXED DROPDOWN OVERLAY
            ============================================================ */
 
         @media (max-width: 700px) {
 
-            /*
-             * IMPORTANT:
-             * The body/page itself does NOT scroll horizontally.
-             */
             html,
             body {
                 width: 100%;
@@ -468,23 +407,15 @@
             .header-inner {
                 width: 100%;
                 max-width: 100%;
-
                 margin: 0;
                 padding: 12px 14px;
-
                 min-height: auto;
-
                 display: flex;
                 flex-direction: column;
                 align-items: stretch;
-
                 gap: 10px;
                 flex-wrap: nowrap;
             }
-
-            /* ========================================================
-               LOGO
-               ======================================================== */
 
             .site-title {
                 width: 100%;
@@ -496,13 +427,9 @@
                 font-size: 20px;
             }
 
-            /* ========================================================
-               ACCOUNT
-               ======================================================== */
-
+            /* Account dropdown - full width on top */
             .header-account {
                 order: 1;
-
                 width: 100%;
                 margin-left: 0;
             }
@@ -514,12 +441,9 @@
             .account-button {
                 width: 100%;
                 justify-content: center;
-
+                background: rgba(255, 255, 255, 0.06);
                 height: 40px;
                 min-height: 40px;
-
-                background: rgba(255, 255, 255, 0.06);
-
                 font-size: 14px;
             }
 
@@ -529,12 +453,9 @@
 
             .account-dropdown-content {
                 position: static;
-
                 width: 100%;
                 margin-top: 4px;
-
                 box-shadow: none;
-
                 background: #ffffff !important;
             }
 
@@ -555,55 +476,26 @@
                 text-align: center;
             }
 
-            /* ========================================================
-               MAIN NAVIGATION - ISOLATED HORIZONTAL SCROLLER
-               ======================================================== */
+            /* ==========================================================
+               MAIN NAV - SCROLLABLE HORIZONTAL ROW
+               ========================================================== */
 
             .main-nav {
                 order: 2;
-
-                /*
-                 * The navigation itself is the ONLY horizontal
-                 * scrolling area.
-                 */
                 width: 100%;
                 max-width: 100%;
-
                 margin: 0;
-
                 display: flex;
                 flex-direction: row;
                 align-items: center;
-
                 gap: 5px;
-
                 flex-shrink: 0;
-
-                /*
-                 * Allow horizontal swipe inside nav only.
-                 */
                 overflow-x: auto;
                 overflow-y: hidden;
-
-                /*
-                 * Prevent the navigation from causing page width.
-                 */
                 overscroll-behavior-x: contain;
                 touch-action: pan-x;
-
-                /*
-                 * Smooth touch scrolling.
-                 */
                 -webkit-overflow-scrolling: touch;
-
-                /*
-                 * Keep navigation on one line.
-                 */
                 flex-wrap: nowrap;
-
-                /*
-                 * Hide scrollbar while keeping scrolling.
-                 */
                 scrollbar-width: none;
                 -ms-overflow-style: none;
             }
@@ -612,10 +504,7 @@
                 display: none;
             }
 
-            /*
-             * Every navigation item keeps its own natural width.
-             * Nothing gets compressed into a grid.
-             */
+            /* All nav items keep their own width */
             .main-nav > a,
             .main-nav > .nav-dropdown,
             .main-nav > .theme-toggle {
@@ -625,19 +514,13 @@
             .main-nav > a,
             .nav-dropdown-btn,
             .theme-toggle {
-                height: 40px;
-                min-height: 40px;
-
+                height: 38px;
+                min-height: 38px;
                 width: auto;
-
-                padding: 0 14px;
-
+                padding: 0 12px;
                 background: rgba(255, 255, 255, 0.06);
-
                 font-size: 12px;
-
                 white-space: nowrap;
-
                 border-radius: 6px;
             }
 
@@ -647,45 +530,39 @@
                 background: rgba(255, 255, 255, 0.12);
             }
 
-            /* ========================================================
-               MOBILE DROPDOWNS
-               ======================================================== */
+            /* ==========================================================
+               DROPDOWN - OVERLAY ON MOBILE (opens DOWNWARD)
+               ========================================================== */
 
             .nav-dropdown {
                 position: relative;
                 flex: 0 0 auto;
+                z-index: 100;
             }
 
             .nav-dropdown-btn {
-                width: auto;
+                width: auto !important;
             }
 
-            /*
-             * Dropdowns stay attached to their navigation item.
-             * They do NOT become horizontal scrolling containers.
-             */
+            /* Dropdown content - OVERLAY using position: fixed */
             .nav-dropdown-content {
+                display: none;
                 position: fixed;
-
                 top: auto;
                 left: 50%;
                 transform: translateX(-50%);
-
                 width: calc(100vw - 28px);
                 max-width: 320px;
-
                 margin-top: 4px;
-
                 padding: 4px;
-
                 background: #ffffff;
-
                 border: 1px solid #e2e8f0;
                 border-radius: 6px;
-
                 box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
-
-                z-index: 3000;
+                z-index: 9999;
+                overflow: hidden;
+                max-height: 300px;
+                overflow-y: auto;
             }
 
             [data-theme="dark"] .nav-dropdown-content {
@@ -701,16 +578,13 @@
 
             .nav-dropdown-content a {
                 min-height: 38px;
-
                 color: #1e293b;
-
                 justify-content: center;
                 text-align: center;
-
                 white-space: nowrap;
-
                 font-size: 12px;
                 padding: 8px 12px;
+                border-radius: 4px;
             }
 
             [data-theme="dark"] .nav-dropdown-content a {
@@ -727,33 +601,28 @@
                 color: #60a5fa;
             }
 
+            /* Make sure dropdown arrow rotates */
+            .nav-dropdown.open .dropdown-arrow {
+                transform: rotate(180deg);
+            }
+
             .theme-toggle {
                 margin-left: 0;
             }
 
-            /* ========================================================
-               MAIN CONTENT
-               ======================================================== */
-
+            /* Prevent page scroll from nav scroll */
             .main-content {
-                width: 100%;
-                max-width: 100%;
-
                 padding: 16px 10px 30px;
-
-                /*
-                 * Main page NEVER horizontally scrolls.
-                 */
                 overflow-x: hidden;
+                width: 100%;
             }
         }
 
         /* ============================================================
-           SMALL PHONES
+           SMALL PHONES (480px and below)
            ============================================================ */
 
         @media (max-width: 480px) {
-
             .header-inner {
                 padding: 10px 12px;
             }
@@ -765,33 +634,46 @@
             .main-nav > a,
             .nav-dropdown-btn,
             .theme-toggle {
-                height: 38px;
-                min-height: 38px;
-
-                padding: 0 12px;
-
+                height: 36px;
+                min-height: 36px;
+                padding: 0 10px;
                 font-size: 11px;
             }
 
             .account-button {
                 font-size: 13px;
-
                 height: 38px;
                 min-height: 38px;
+            }
+
+            .nav-dropdown-content {
+                max-width: 280px;
+            }
+
+            .nav-dropdown-content a {
+                font-size: 11px;
+                padding: 6px 10px;
+                min-height: 34px;
             }
         }
 
         /* ============================================================
-           VERY SMALL PHONES
+           VERY SMALL PHONES (350px and below)
            ============================================================ */
 
         @media (max-width: 350px) {
-
             .main-nav > a,
             .nav-dropdown-btn,
             .theme-toggle {
-                padding-left: 11px;
-                padding-right: 11px;
+                padding: 0 8px;
+                font-size: 10px;
+                height: 32px;
+                min-height: 32px;
+            }
+
+            .nav-dropdown-content {
+                max-width: 240px;
+                min-width: 160px;
             }
         }
     </style>
