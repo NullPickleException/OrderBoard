@@ -1,654 +1,1493 @@
-{% load static %}
+{% extends "orderboard/base.html" %}
+{% load humanize %}
 
-<!DOCTYPE html>
-<html lang="en">
+{% block title %}Dashboard{% endblock %}
 
-<head>
+{% block content %}
 
-    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>
-        {% block title %}OrderBoard{% endblock %}
-    </title>
-
-
-    <!-- ================================================================
-         THEME
-         ================================================================ -->
-
-    <script>
-
-        (function () {
-
-            try {
-
-                const saved =
-                    localStorage.getItem(
-                        'orderboard-theme'
-                    );
-
-                const prefersDark =
-                    window.matchMedia(
-                        '(prefers-color-scheme: dark)'
-                    ).matches;
-
-                const theme =
-                    saved ||
-                    (prefersDark ? 'dark' : 'light');
-
-                document.documentElement.setAttribute(
-                    'data-theme',
-                    theme
-                );
-
-            } catch (e) {
-
-                document.documentElement.setAttribute(
-                    'data-theme',
-                    'light'
-                );
-
-            }
-
-        })();
-
-    </script>
-
-
-    <link rel="stylesheet" href="{% static 'orderboard/css/style.css' %}?v=5">
-
-    {% block extra_css %}{% endblock %}
-
-</head>
-
-
-<body>
-
-
-    <!-- =====================================================================
-     HEADER
+<!-- =====================================================================
+     PAGE HEADER
      ===================================================================== -->
 
-    <header class="site-header">
+<div class="page-header">
 
-        <div class="header-inner">
+    <div>
 
+        <h2>Dashboard</h2>
 
-            <!-- =============================================================
-             LOGO
-             ============================================================= -->
+        <p class="page-description">
+            Overview of your orders, customers, payments, and shipping.
+        </p>
 
-            <h1 class="site-title">
+    </div>
 
-                <a href="{% url 'dashboard' %}">
-                    OrderBoard
-                </a>
+</div>
 
-            </h1>
 
-
-            {% if user.is_authenticated %}
-
-
-            <!-- =========================================================
-                 LEFT SIDE ACCOUNT
-                 ========================================================= -->
-
-            <div class="header-account">
-
-                <div class="account-dropdown">
-
-                    <button type="button" class="account-button" id="account-button" aria-expanded="false">
-
-                        <span class="account-icon">
-                            👤
-                        </span>
-
-                        <span class="account-name">
-                            {{ user.username }}
-                        </span>
-
-                        <span class="dropdown-arrow">
-                            ▾
-                        </span>
-
-                    </button>
-
-
-                    <div class="account-dropdown-content" id="account-dropdown-content">
-
-                        <div class="account-dropdown-header">
-
-                            <strong>
-                                {{ user.username }}
-                            </strong>
-
-                            {% if user.email %}
-
-                            <span>
-                                {{ user.email }}
-                            </span>
-
-                            {% endif %}
-
-                        </div>
-
-
-                        <!-- =================================================
-                             ADMIN-ONLY OPTIONS
-                             ================================================= -->
-
-                        {% if user.is_staff %}
-
-                        <div class="account-dropdown-divider">
-                        </div>
-
-                        <a href="{% url 'password_change' %}">
-                            Change Password
-                        </a>
-
-                        <div class="account-dropdown-divider">
-                        </div>
-
-                        <a href="/admin/">
-                            Administration
-                        </a>
-
-                        {% endif %}
-
-
-                        <!-- =================================================
-                             LOGOUT
-                             ================================================= -->
-
-                        <div class="account-dropdown-divider">
-                        </div>
-
-
-                        <form method="post" action="{% url 'logout' %}">
-
-                            {% csrf_token %}
-
-                            <button type="submit" class="account-logout-button">
-                                Log Out
-                            </button>
-
-                        </form>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- =========================================================
-                 RIGHT SIDE NAVIGATION - FIXED FOR MOBILE
-                 ========================================================= -->
-
-            <nav class="main-nav">
-
-
-                <a href="{% url 'dashboard' %}">
-                    Dashboard
-                </a>
-
-
-                <!-- Orders -->
-
-                <div class="nav-dropdown">
-
-                    <button type="button" class="nav-dropdown-btn" aria-expanded="false">
-
-                        Orders
-
-                        <span class="dropdown-arrow">
-                            ▾
-                        </span>
-
-                    </button>
-
-
-                    <div class="nav-dropdown-content">
-
-                        <a href="{% url 'order_list' %}">
-                            All Orders
-                        </a>
-
-                        <a href="{% url 'order_create' %}">
-                            + New Order
-                        </a>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Customers -->
-
-                <div class="nav-dropdown">
-
-                    <button type="button" class="nav-dropdown-btn" aria-expanded="false">
-
-                        Customers
-
-                        <span class="dropdown-arrow">
-                            ▾
-                        </span>
-
-                    </button>
-
-
-                    <div class="nav-dropdown-content">
-
-                        <a href="{% url 'customer_list' %}">
-                            All Customers
-                        </a>
-
-                        <a href="{% url 'customer_create' %}">
-                            + New Customer
-                        </a>
-
-                    </div>
-
-                </div>
-
-
-                <a href="{% url 'payment_list' %}">
-                    Payments
-                </a>
-
-
-                <a href="{% url 'shipping_list' %}">
-                    Shipping
-                </a>
-
-                <a href="{% url 'export_center' %}">
-                    Export
-                </a>
-
-                <a href="{% url 'printing_list' %}">
-                    Printing
-                </a>
-
-
-                <!-- Theme -->
-
-                <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
-
-                    <span id="theme-icon">
-                        ☀
-                    </span>
-
-                    <span id="theme-text">
-                        Light
-                    </span>
-
-                </button>
-
-
-            </nav>
-
-
-            {% else %}
-
-
-            <!-- =========================================================
-                 NOT LOGGED IN
-                 ========================================================= -->
-
-            <nav class="main-nav">
-
-                <a href="{% url 'login' %}" class="login-nav-button">
-                    Login
-                </a>
-
-            </nav>
-
-
-            {% endif %}
-
-
-        </div>
-
-    </header>
-
-
-    <!-- =====================================================================
-     MAIN
+<!-- =====================================================================
+     SUMMARY CARDS
      ===================================================================== -->
 
-    <main class="main-content">
+<section class="dashboard-grid">
+
+    <!-- TOTAL ORDERS -->
+
+    <a href="#all-orders" class="card dashboard-card">
+
+        <h3>Total Orders</h3>
+
+        <p class="big-number">
+            {{ total_orders }}
+        </p>
+
+        <span class="card-link">
+            View orders →
+        </span>
+
+    </a>
 
 
-        {% if messages %}
+    <!-- CUSTOMERS -->
 
-        <section class="messages">
+    <a href="{% url 'customer_list' %}" class="card dashboard-card">
 
-            {% for message in messages %}
+        <h3>Customers</h3>
 
-            <div class="message">
+        <p class="big-number">
+            {{ total_customers }}
+        </p>
 
-                {{ message }}
+        <span class="card-link">
+            View customers →
+        </span>
 
-            </div>
-
-            {% endfor %}
-
-        </section>
-
-        {% endif %}
+    </a>
 
 
-        {% block content %}{% endblock %}
+    <!-- MODELING -->
+
+    <a href="#modeling-queue" class="card dashboard-card">
+
+        <h3>Modeling</h3>
+
+        <p class="big-number">
+            {{ status_counts.modeling }}
+        </p>
+
+        <span class="card-link">
+            View queue →
+        </span>
+
+    </a>
 
 
-    </main>
+    <!-- PRINTING -->
+
+    <a href="#printing-queue" class="card dashboard-card">
+
+        <h3>Printing</h3>
+
+        <p class="big-number">
+            {{ status_counts.print }}
+        </p>
+
+        <span class="card-link">
+            View queue →
+        </span>
+
+    </a>
 
 
-    <!-- =====================================================================
-     FOOTER
+    <!-- PAINTING -->
+
+    <a href="#painting-queue" class="card dashboard-card">
+
+        <h3>Painting</h3>
+
+        <p class="big-number">
+            {{ status_counts.paint }}
+        </p>
+
+        <span class="card-link">
+            View queue →
+        </span>
+
+    </a>
+
+
+    <!-- COMPLETED -->
+
+    <a href="#completed-queue" class="card dashboard-card">
+
+        <h3>Completed</h3>
+
+        <p class="big-number">
+            {{ status_counts.done }}
+        </p>
+
+        <span class="card-link">
+            View completed →
+        </span>
+
+    </a>
+
+
+    <!-- REVENUE -->
+
+    <a href="#recent-payments" class="card dashboard-card">
+
+        <h3>Total Revenue</h3>
+
+        <p class="big-number">
+            {{ total_revenue|floatformat:0|intcomma }} RIAL
+        </p>
+
+        <span class="card-link">
+            View payments →
+        </span>
+
+    </a>
+
+
+    <!-- NOT SHIPPED -->
+
+    <a href="#not-shipped" class="card dashboard-card">
+
+        <h3>Not Shipped</h3>
+
+        <p class="big-number">
+            {{ shipping_counts.not_shipped }}
+        </p>
+
+        <span class="card-link">
+            View queue →
+        </span>
+
+    </a>
+
+
+    <!-- PACKAGED -->
+
+    <a href="#packaged" class="card dashboard-card">
+
+        <h3>Packaged</h3>
+
+        <p class="big-number">
+            {{ shipping_counts.packaged }}
+        </p>
+
+        <span class="card-link">
+            View queue →
+        </span>
+
+    </a>
+
+
+    <!-- SHIPPED -->
+
+    <a href="#shipped" class="card dashboard-card">
+
+        <h3>Shipped</h3>
+
+        <p class="big-number">
+            {{ shipping_counts.shipped }}
+        </p>
+
+        <span class="card-link">
+            View queue →
+        </span>
+
+    </a>
+
+
+    <!-- DELIVERED -->
+
+    <a href="#delivered" class="card dashboard-card">
+
+        <h3>Delivered</h3>
+
+        <p class="big-number">
+            {{ shipping_counts.delivered }}
+        </p>
+
+        <span class="card-link">
+            View queue →
+        </span>
+
+    </a>
+
+</section>
+
+
+<!-- =====================================================================
+     NEEDS ATTENTION
      ===================================================================== -->
 
-    <footer class="site-footer">
+<section
+    id="needs-attention"
+    class="content-section"
+>
 
-        <div class="footer-inner">
+    <div class="section-header">
 
-            <p>
-                OrderBoard
+        <div>
+
+            <h3>
+                Needs Attention
+            </h3>
+
+            <p class="section-description">
+                Orders that are overdue or getting close to their deadline.
             </p>
 
         </div>
 
-    </footer>
+        <span class="section-count danger">
+            {{ overdue_orders|length|add:upcoming_orders|length }}
+        </span>
+
+    </div>
 
 
-    <!-- =====================================================================
-     JAVASCRIPT
+    {% if overdue_orders or upcoming_orders %}
+
+        <div class="responsive-table">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Order</th>
+                        <th>Customer</th>
+                        <th>Status</th>
+                        <th>Deadline</th>
+                        <th>Alert</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for order in overdue_orders %}
+
+                        <tr class="overdue">
+
+                            <td data-label="Order">
+
+                                <a href="{% url 'order_detail' order.id %}">
+                                    {{ order.title }}
+                                </a>
+
+                            </td>
+
+                            <td data-label="Customer">
+                                {{ order.customer.name }}
+                            </td>
+
+                            <td data-label="Status">
+                                {{ order.get_status_display }}
+                            </td>
+
+                            <td data-label="Deadline">
+                                {{ order.deadline|date:"Y-m-d" }}
+                                <span class="deadline-days overdue-days">
+                                    ({{ order.deadline|timesince }} ago)
+                                </span>
+                            </td>
+
+                            <td data-label="Alert">
+                                <span class="status-badge status-not-shipped">
+                                    OVERDUE
+                                </span>
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+
+                    {% for order in upcoming_orders %}
+
+                        <tr>
+
+                            <td data-label="Order">
+
+                                <a href="{% url 'order_detail' order.id %}">
+                                    {{ order.title }}
+                                </a>
+
+                            </td>
+
+                            <td data-label="Customer">
+                                {{ order.customer.name }}
+                            </td>
+
+                            <td data-label="Status">
+                                {{ order.get_status_display }}
+                            </td>
+
+                            <td data-label="Deadline">
+                                {{ order.deadline|date:"Y-m-d" }}
+                                <span class="deadline-days upcoming-days">
+                                    (in {{ order.deadline|timeuntil }})
+                                </span>
+                            </td>
+
+                            <td data-label="Alert">
+                                <span class="status-badge status-paint">
+                                    UPCOMING
+                                </span>
+                            </td>
+
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    {% else %}
+
+        <div class="empty-state">
+
+            <p>
+                Everything looks good — no overdue or upcoming orders.
+            </p>
+
+        </div>
+
+    {% endif %}
+
+</section>
+
+
+<!-- =====================================================================
+     WORK QUEUES
      ===================================================================== -->
 
-    <script>
 
+<!-- MODELING QUEUE -->
 
-        /* ==========================================================================
-           NAV DROPDOWNS
-           ========================================================================== */
+<section
+    id="modeling-queue"
+    class="content-section"
+>
 
-        document
-            .querySelectorAll('.nav-dropdown')
-            .forEach(dropdown => {
+    <div class="section-header">
 
-                const btn =
-                    dropdown.querySelector(
-                        '.nav-dropdown-btn'
-                    );
+        <div>
 
+            <h3>
+                Modeling Queue
+            </h3>
 
-                btn.addEventListener(
-                    'click',
-                    (e) => {
+            <p class="section-description">
+                Orders currently waiting for modeling.
+            </p>
 
-                        e.stopPropagation();
-                        e.preventDefault();
+        </div>
 
+        <span class="section-count">
+            {{ status_counts.modeling }}
+        </span>
 
-                        const isOpen =
-                            dropdown.classList.contains(
-                                'open'
-                            );
+    </div>
 
 
-                        document
-                            .querySelectorAll('.nav-dropdown')
-                            .forEach(d => {
+    <div class="responsive-table">
 
-                                d.classList.remove(
-                                    'open'
-                                );
+        <table>
 
-                                d.querySelector(
-                                    '.nav-dropdown-btn'
-                                ).setAttribute(
-                                    'aria-expanded',
-                                    'false'
-                                );
+            <thead>
 
-                            });
+                <tr>
 
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Deadline</th>
+                    <th>Received</th>
 
-                        if (!isOpen) {
+                </tr>
 
-                            dropdown.classList.add(
-                                'open'
-                            );
+            </thead>
 
-                            btn.setAttribute(
-                                'aria-expanded',
-                                'true'
-                            );
 
-                        }
+            <tbody>
 
-                    }
-                );
+                {% for order in modeling_orders %}
 
-            });
+                    <tr class="{% if order.deadline and order.deadline < now %}overdue{% endif %}">
 
+                        <td data-label="Order">
 
-        /* ==========================================================================
-           ACCOUNT DROPDOWN
-           ========================================================================== */
+                            <a href="{% url 'order_detail' order.id %}">
+                                {{ order.title }}
+                            </a>
 
-        const accountButton =
-            document.getElementById(
-                'account-button'
-            );
+                        </td>
 
-        const accountDropdown =
-            document.getElementById(
-                'account-dropdown-content'
-            );
+                        <td data-label="Customer">
+                            {{ order.customer.name }}
+                        </td>
 
+                        <td data-label="Deadline">
+                            {% if order.deadline %}
+                                {{ order.deadline|date:"Y-m-d" }}
+                                <span class="deadline-days {% if order.deadline < now %}overdue-days{% else %}upcoming-days{% endif %}">
+                                    ({% if order.deadline < now %}{{ order.deadline|timesince }} ago{% else %}in {{ order.deadline|timeuntil }}{% endif %})
+                                </span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
 
-        if (
-            accountButton &&
-            accountDropdown
-        ) {
+                        <td data-label="Received">
+                            {{ order.order_received_at|date:"Y-m-d"|default:"—" }}
+                        </td>
 
-            accountButton.addEventListener(
-                'click',
-                (e) => {
+                    </tr>
 
-                    e.stopPropagation();
+                {% empty %}
 
-                    const isOpen =
-                        accountDropdown.classList.contains(
-                            'open'
-                        );
+                    <tr>
 
+                        <td colspan="4" class="empty-state">
+                            No orders in the modeling queue.
+                        </td>
 
-                    accountDropdown.classList.toggle(
-                        'open'
-                    );
+                    </tr>
 
+                {% endfor %}
 
-                    accountButton.setAttribute(
-                        'aria-expanded',
-                        String(!isOpen)
-                    );
+            </tbody>
 
-                }
-            );
+        </table>
 
-        }
+    </div>
 
+</section>
 
-        /* ==========================================================================
-           CLOSE DROPDOWNS WHEN CLICKING OUTSIDE
-           ========================================================================== */
 
-        document.addEventListener(
-            'click',
-            () => {
+<!-- PRINTING QUEUE -->
 
+<section
+    id="printing-queue"
+    class="content-section"
+>
 
-                document
-                    .querySelectorAll('.nav-dropdown')
-                    .forEach(dropdown => {
+    <div class="section-header">
 
-                        dropdown.classList.remove(
-                            'open'
-                        );
+        <div>
 
-                        dropdown
-                            .querySelector(
-                                '.nav-dropdown-btn'
-                            )
-                            .setAttribute(
-                                'aria-expanded',
-                                'false'
-                            );
+            <h3>
+                Printing Queue
+            </h3>
 
-                    });
+            <p class="section-description">
+                Orders currently waiting to be printed.
+            </p>
 
+        </div>
 
-                if (
-                    accountDropdown &&
-                    accountButton
-                ) {
+        <span class="section-count">
+            {{ status_counts.print }}
+        </span>
 
-                    accountDropdown.classList.remove(
-                        'open'
-                    );
+    </div>
 
-                    accountButton.setAttribute(
-                        'aria-expanded',
-                        'false'
-                    );
 
-                }
+    <div class="responsive-table">
 
-            }
-        );
+        <table>
 
+            <thead>
 
-        /* ==========================================================================
-           THEME TOGGLE
-           ========================================================================== */
+                <tr>
 
-        const themeToggle =
-            document.getElementById(
-                'theme-toggle'
-            );
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Deadline</th>
+                    <th>Received</th>
 
-        const themeIcon =
-            document.getElementById(
-                'theme-icon'
-            );
+                </tr>
 
-        const themeText =
-            document.getElementById(
-                'theme-text'
-            );
+            </thead>
 
 
-        function applyTheme(theme) {
+            <tbody>
 
+                {% for order in printing_orders %}
 
-            document.documentElement.setAttribute(
-                'data-theme',
-                theme
-            );
+                    <tr class="{% if order.deadline and order.deadline < now %}overdue{% endif %}">
 
+                        <td data-label="Order">
 
-            document.body.setAttribute(
-                'data-theme',
-                theme
-            );
+                            <a href="{% url 'order_detail' order.id %}">
+                                {{ order.title }}
+                            </a>
 
+                        </td>
 
-            if (
-                theme === 'dark'
-            ) {
+                        <td data-label="Customer">
+                            {{ order.customer.name }}
+                        </td>
 
-                if (themeIcon) {
-                    themeIcon.textContent = '☾';
-                }
+                        <td data-label="Deadline">
+                            {% if order.deadline %}
+                                {{ order.deadline|date:"Y-m-d" }}
+                                <span class="deadline-days {% if order.deadline < now %}overdue-days{% else %}upcoming-days{% endif %}">
+                                    ({% if order.deadline < now %}{{ order.deadline|timesince }} ago{% else %}in {{ order.deadline|timeuntil }}{% endif %})
+                                </span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
 
-                if (themeText) {
-                    themeText.textContent = 'Dark';
-                }
+                        <td data-label="Received">
+                            {{ order.order_received_at|date:"Y-m-d"|default:"—" }}
+                        </td>
 
-            } else {
+                    </tr>
 
-                if (themeIcon) {
-                    themeIcon.textContent = '☀';
-                }
+                {% empty %}
 
-                if (themeText) {
-                    themeText.textContent = 'Light';
-                }
+                    <tr>
 
-            }
+                        <td colspan="4" class="empty-state">
+                            No orders in the printing queue.
+                        </td>
 
-        }
+                    </tr>
 
+                {% endfor %}
 
-        if (themeToggle) {
+            </tbody>
 
+        </table>
 
-            const currentTheme =
-                document.documentElement
-                    .getAttribute(
-                        'data-theme'
-                    ) || 'light';
+    </div>
 
+</section>
 
-            applyTheme(
-                currentTheme
-            );
 
+<!-- PAINTING QUEUE -->
 
-            themeToggle.addEventListener(
-                'click',
-                () => {
+<section
+    id="painting-queue"
+    class="content-section"
+>
 
+    <div class="section-header">
 
-                    const current =
-                        document.documentElement
-                            .getAttribute(
-                                'data-theme'
-                            );
+        <div>
 
+            <h3>
+                Painting Queue
+            </h3>
 
-                    const next =
-                        current === 'dark'
-                            ? 'light'
-                            : 'dark';
+            <p class="section-description">
+                Orders currently waiting to be painted.
+            </p>
 
+        </div>
 
-                    applyTheme(
-                        next
-                    );
+        <span class="section-count">
+            {{ status_counts.paint }}
+        </span>
 
+    </div>
 
-                    localStorage.setItem(
-                        'orderboard-theme',
-                        next
-                    );
 
-                }
-            );
+    <div class="responsive-table">
 
-        }
+        <table>
 
-    </script>
+            <thead>
 
+                <tr>
 
-    {% block extra_js %}{% endblock %}
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Deadline</th>
+                    <th>Received</th>
 
-</body>
+                </tr>
 
-</html>
+            </thead>
+
+
+            <tbody>
+
+                {% for order in painting_orders %}
+
+                    <tr class="{% if order.deadline and order.deadline < now %}overdue{% endif %}">
+
+                        <td data-label="Order">
+
+                            <a href="{% url 'order_detail' order.id %}">
+                                {{ order.title }}
+                            </a>
+
+                        </td>
+
+                        <td data-label="Customer">
+                            {{ order.customer.name }}
+                        </td>
+
+                        <td data-label="Deadline">
+                            {% if order.deadline %}
+                                {{ order.deadline|date:"Y-m-d" }}
+                                <span class="deadline-days {% if order.deadline < now %}overdue-days{% else %}upcoming-days{% endif %}">
+                                    ({% if order.deadline < now %}{{ order.deadline|timesince }} ago{% else %}in {{ order.deadline|timeuntil }}{% endif %})
+                                </span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td data-label="Received">
+                            {{ order.order_received_at|date:"Y-m-d"|default:"—" }}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="4" class="empty-state">
+                            No orders in the painting queue.
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- COMPLETED QUEUE -->
+
+<section
+    id="completed-queue"
+    class="content-section"
+>
+
+    <div class="section-header">
+
+        <div>
+
+            <h3>
+                Completed Orders
+            </h3>
+
+            <p class="section-description">
+                Orders that have been completed.
+            </p>
+
+        </div>
+
+        <span class="section-count">
+            {{ status_counts.done }}
+        </span>
+
+    </div>
+
+
+    <div class="responsive-table">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Price</th>
+                    <th>Deadline</th>
+                    <th>Updated</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for order in completed_orders %}
+
+                    {% if order.shipping.status == 'delivered' %}
+                        <tr>
+                    {% elif order.deadline and order.deadline < now %}
+                        <tr class="overdue">
+                    {% else %}
+                        <tr>
+                    {% endif %}
+
+                        <td data-label="Order">
+
+                            <a href="{% url 'order_detail' order.id %}">
+                                {{ order.title }}
+                            </a>
+
+                        </td>
+
+                        <td data-label="Customer">
+                            {{ order.customer.name }}
+                        </td>
+
+                        <td data-label="Price">
+                            {{ order.total_price|floatformat:0|intcomma }} RIAL
+                        </td>
+
+                        <td data-label="Deadline">
+                            {% if order.shipping.status == 'delivered' %}
+                                {{ order.deadline|date:"Y-m-d"|default:"—" }}
+                                <span class="deadline-days status-delivered">
+                                    (Delivered)
+                                </span>
+                            {% elif order.deadline %}
+                                {{ order.deadline|date:"Y-m-d" }}
+                                <span class="deadline-days {% if order.deadline < now %}overdue-days{% else %}upcoming-days{% endif %}">
+                                    ({% if order.deadline < now %}{{ order.deadline|timesince }} ago{% else %}in {{ order.deadline|timeuntil }}{% endif %})
+                                </span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td data-label="Updated">
+                            {{ order.updated_at|date:"Y-m-d" }}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="5" class="empty-state">
+                            No completed orders.
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================================
+     PAYMENTS
+     ===================================================================== -->
+
+
+<!-- OUTSTANDING PAYMENTS -->
+
+<section
+    id="outstanding-payments"
+    class="content-section"
+>
+
+    <div class="section-header">
+
+        <div>
+
+            <h3>
+                Outstanding Payments
+            </h3>
+
+            <p class="section-description">
+                Orders that still have money remaining to be paid.
+            </p>
+
+        </div>
+
+        <span class="section-count">
+            {{ all_unpaid_orders|length }}
+        </span>
+
+    </div>
+
+
+    <div class="responsive-table">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Total</th>
+                    <th>Remaining</th>
+                    <th>Deadline</th>
+                    <th>Payment Status</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for order in unpaid_orders %}
+
+                    {% if order.shipping.status == 'delivered' %}
+                        <tr>
+                    {% elif order.deadline and order.deadline < now %}
+                        <tr class="overdue">
+                    {% else %}
+                        <tr>
+                    {% endif %}
+
+                        <td data-label="Order">
+
+                            <a href="{% url 'order_detail' order.id %}">
+                                {{ order.title }}
+                            </a>
+
+                        </td>
+
+                        <td data-label="Customer">
+                            {{ order.customer.name }}
+                        </td>
+
+                        <td data-label="Total">
+                            {{ order.total_price|floatformat:0|intcomma }} RIAL
+                        </td>
+
+                        <td data-label="Remaining">
+                            {{ order.remaining_balance|floatformat:0|intcomma }} RIAL
+                        </td>
+
+                        <td data-label="Deadline">
+                            {% if order.shipping.status == 'delivered' %}
+                                {{ order.deadline|date:"Y-m-d"|default:"—" }}
+                                <span class="deadline-days status-delivered">
+                                    (Delivered)
+                                </span>
+                            {% elif order.deadline %}
+                                {{ order.deadline|date:"Y-m-d" }}
+                                <span class="deadline-days {% if order.deadline < now %}overdue-days{% else %}upcoming-days{% endif %}">
+                                    ({% if order.deadline < now %}{{ order.deadline|timesince }} ago{% else %}in {{ order.deadline|timeuntil }}{% endif %})
+                                </span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td data-label="Payment Status">
+                            {{ order.payment_status }}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="6" class="empty-state">
+                            No outstanding payments.
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- RECENT PAYMENTS -->
+
+<section
+    id="recent-payments"
+    class="content-section"
+>
+
+    <div class="section-header">
+
+        <div>
+
+            <h3>
+                Recent Payments
+            </h3>
+
+            <p class="section-description">
+                The latest payments recorded in OrderBoard.
+            </p>
+
+        </div>
+
+        <a
+            href="{% url 'payment_list' %}"
+            class="button"
+        >
+            View All Payments
+        </a>
+
+    </div>
+
+
+    <div class="responsive-table">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Deadline</th>
+                    <th>Note</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for payment in recent_payments %}
+
+                    {% if payment.order.shipping.status == 'delivered' %}
+                        <tr>
+                    {% elif payment.order.deadline and payment.order.deadline < now %}
+                        <tr class="overdue">
+                    {% else %}
+                        <tr>
+                    {% endif %}
+
+                        <td data-label="Order">
+
+                            <a href="{% url 'order_detail' payment.order.id %}">
+                                {{ payment.order.title }}
+                            </a>
+
+                        </td>
+
+                        <td data-label="Customer">
+                            {{ payment.order.customer.name }}
+                        </td>
+
+                        <td data-label="Amount">
+                            {{ payment.paid_amount|floatformat:0|intcomma }} RIAL
+                        </td>
+
+                        <td data-label="Date">
+                            {{ payment.paid_at|date:"Y-m-d" }}
+                        </td>
+
+                        <td data-label="Deadline">
+                            {% if payment.order.shipping.status == 'delivered' %}
+                                {{ payment.order.deadline|date:"Y-m-d"|default:"—" }}
+                                <span class="deadline-days status-delivered">
+                                    (Delivered)
+                                </span>
+                            {% elif payment.order.deadline %}
+                                {{ payment.order.deadline|date:"Y-m-d" }}
+                                <span class="deadline-days {% if payment.order.deadline < now %}overdue-days{% else %}upcoming-days{% endif %}">
+                                    ({% if payment.order.deadline < now %}{{ payment.order.deadline|timesince }} ago{% else %}in {{ payment.order.deadline|timeuntil }}{% endif %})
+                                </span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td data-label="Note">
+                            {{ payment.note|default:"—" }}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="6" class="empty-state">
+                            No payments recorded.
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================================
+     SHIPPING
+     ===================================================================== -->
+
+
+<!-- NOT SHIPPED -->
+
+<section
+    id="not-shipped"
+    class="content-section"
+>
+
+    <div class="section-header">
+
+        <div>
+
+            <h3>
+                Not Shipped
+            </h3>
+
+            <p class="section-description">
+                Orders that have not been shipped yet.
+            </p>
+
+        </div>
+
+        <span class="section-count">
+            {{ shipping_counts.not_shipped }}
+        </span>
+
+    </div>
+
+
+    <div class="responsive-table">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Deadline</th>
+                    <th>Tracking ID</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for shipping in not_shipped_orders %}
+
+                    <tr class="{% if shipping.order.deadline and shipping.order.deadline < now %}overdue{% endif %}">
+
+                        <td data-label="Order">
+
+                            <a href="{% url 'order_detail' shipping.order.id %}">
+                                {{ shipping.order.title }}
+                            </a>
+
+                        </td>
+
+                        <td data-label="Customer">
+                            {{ shipping.order.customer.name }}
+                        </td>
+
+                        <td data-label="Deadline">
+                            {% if shipping.order.deadline %}
+                                {{ shipping.order.deadline|date:"Y-m-d" }}
+                                <span class="deadline-days {% if shipping.order.deadline < now %}overdue-days{% else %}upcoming-days{% endif %}">
+                                    ({% if shipping.order.deadline < now %}{{ shipping.order.deadline|timesince }} ago{% else %}in {{ shipping.order.deadline|timeuntil }}{% endif %})
+                                </span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td data-label="Tracking ID">
+                            {{ shipping.tracking_id|default:"—" }}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="4" class="empty-state">
+                            No orders waiting to be shipped.
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- PACKAGED -->
+
+<section
+    id="packaged"
+    class="content-section"
+>
+
+    <div class="section-header">
+
+        <div>
+
+            <h3>
+                Packaged
+            </h3>
+
+            <p class="section-description">
+                Orders that have been packaged and are ready for shipping.
+            </p>
+
+        </div>
+
+        <span class="section-count">
+            {{ shipping_counts.packaged }}
+        </span>
+
+    </div>
+
+
+    <div class="responsive-table">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Deadline</th>
+                    <th>Tracking ID</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for shipping in packaged_orders %}
+
+                    <tr class="{% if shipping.order.deadline and shipping.order.deadline < now %}overdue{% endif %}">
+
+                        <td data-label="Order">
+
+                            <a href="{% url 'order_detail' shipping.order.id %}">
+                                {{ shipping.order.title }}
+                            </a>
+
+                        </td>
+
+                        <td data-label="Customer">
+                            {{ shipping.order.customer.name }}
+                        </td>
+
+                        <td data-label="Deadline">
+                            {% if shipping.order.deadline %}
+                                {{ shipping.order.deadline|date:"Y-m-d" }}
+                                <span class="deadline-days {% if shipping.order.deadline < now %}overdue-days{% else %}upcoming-days{% endif %}">
+                                    ({% if shipping.order.deadline < now %}{{ shipping.order.deadline|timesince }} ago{% else %}in {{ shipping.order.deadline|timeuntil }}{% endif %})
+                                </span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td data-label="Tracking ID">
+                            {{ shipping.tracking_id|default:"—" }}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="4" class="empty-state">
+                            No packaged orders.
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- SHIPPED -->
+
+<section
+    id="shipped"
+    class="content-section"
+>
+
+    <div class="section-header">
+
+        <div>
+
+            <h3>
+                Shipped
+            </h3>
+
+            <p class="section-description">
+                Orders that have been shipped but not yet delivered.
+            </p>
+
+        </div>
+
+        <span class="section-count">
+            {{ shipping_counts.shipped }}
+        </span>
+
+    </div>
+
+
+    <div class="responsive-table">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Deadline</th>
+                    <th>Tracking ID</th>
+                    <th>Shipped</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for shipping in shipped_orders %}
+
+                    <tr class="{% if shipping.order.deadline and shipping.order.deadline < now %}overdue{% endif %}">
+
+                        <td data-label="Order">
+
+                            <a href="{% url 'order_detail' shipping.order.id %}">
+                                {{ shipping.order.title }}
+                            </a>
+
+                        </td>
+
+                        <td data-label="Customer">
+                            {{ shipping.order.customer.name }}
+                        </td>
+
+                        <td data-label="Deadline">
+                            {% if shipping.order.deadline %}
+                                {{ shipping.order.deadline|date:"Y-m-d" }}
+                                <span class="deadline-days {% if shipping.order.deadline < now %}overdue-days{% else %}upcoming-days{% endif %}">
+                                    ({% if shipping.order.deadline < now %}{{ shipping.order.deadline|timesince }} ago{% else %}in {{ shipping.order.deadline|timeuntil }}{% endif %})
+                                </span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td data-label="Tracking ID">
+                            {{ shipping.tracking_id|default:"—" }}
+                        </td>
+
+                        <td data-label="Shipped">
+                            {{ shipping.shipped_at|date:"Y-m-d"|default:"—" }}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="5" class="empty-state">
+                            No shipped orders.
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- DELIVERED -->
+
+<section
+    id="delivered"
+    class="content-section"
+>
+
+    <div class="section-header">
+
+        <div>
+
+            <h3>
+                Delivered
+            </h3>
+
+            <p class="section-description">
+                Orders that have been successfully delivered.
+            </p>
+
+        </div>
+
+        <span class="section-count">
+            {{ shipping_counts.delivered }}
+        </span>
+
+    </div>
+
+
+    <div class="responsive-table">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Deadline</th>
+                    <th>Tracking ID</th>
+                    <th>Delivered</th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for shipping in delivered_orders %}
+
+                    <tr>
+
+                        <td data-label="Order">
+
+                            <a href="{% url 'order_detail' shipping.order.id %}">
+                                {{ shipping.order.title }}
+                            </a>
+
+                        </td>
+
+                        <td data-label="Customer">
+                            {{ shipping.order.customer.name }}
+                        </td>
+
+                        <td data-label="Deadline">
+                            {% if shipping.order.deadline %}
+                                {{ shipping.order.deadline|date:"Y-m-d" }}
+                                <span class="deadline-days status-delivered">
+                                    (Delivered)
+                                </span>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td data-label="Tracking ID">
+                            {{ shipping.tracking_id|default:"—" }}
+                        </td>
+
+                        <td data-label="Delivered">
+                            {{ shipping.delivered_at|date:"Y-m-d"|default:"—" }}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+
+                        <td colspan="5" class="empty-state">
+                            No delivered orders.
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================================
+     BACK TO TOP
+     ===================================================================== -->
+
+<div class="dashboard-back-to-top">
+
+    <a
+        href="#"
+        class="button secondary"
+    >
+        ↑ Back to top
+    </a>
+
+</div>
+
+
+{% endblock %}
