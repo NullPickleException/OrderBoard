@@ -41,6 +41,8 @@
             font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             background: var(--bg-main, #f1f5f9);
             color: var(--text-main, #1e293b);
+            overflow-x: hidden;
+            width: 100%;
         }
 
         /* Header Container */
@@ -251,7 +253,7 @@
             flex-shrink: 0;
         }
 
-        .main-nav > a,
+        .main-nav>a,
         .nav-dropdown-btn,
         .theme-toggle {
             display: inline-flex;
@@ -273,7 +275,7 @@
             transition: background-color 0.15s ease, color 0.15s ease;
         }
 
-        .main-nav > a:hover,
+        .main-nav>a:hover,
         .nav-dropdown-btn:hover,
         .theme-toggle:hover {
             background: #1e293b;
@@ -323,7 +325,7 @@
             border-color: #334155;
         }
 
-        .nav-dropdown.open > .nav-dropdown-content {
+        .nav-dropdown.open>.nav-dropdown-content {
             display: flex;
             flex-direction: column;
             gap: 3px;
@@ -382,7 +384,7 @@
         }
 
         /* ============================================================
-           MOBILE RESPONSIVE
+           MOBILE RESPONSIVE - SCROLLABLE NAV
            ============================================================ */
 
         @media (max-width: 700px) {
@@ -453,69 +455,95 @@
             }
 
             /* ==========================================================
-               MAIN NAV - GRID LAYOUT (2 columns like a table)
+               MAIN NAV - SCROLLABLE HORIZONTAL ROW
                ========================================================== */
             .main-nav {
                 order: 2;
                 width: 100%;
                 margin-left: 0;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                overflow-y: hidden;
                 gap: 5px;
+                padding: 4px 0 8px 0;
                 flex-shrink: 0;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: thin;
             }
 
-            /* All nav items fill their grid cells */
-            .main-nav > a,
+            /* Hide scrollbar but keep functionality */
+            .main-nav::-webkit-scrollbar {
+                height: 4px;
+            }
+
+            .main-nav::-webkit-scrollbar-track {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 4px;
+            }
+
+            .main-nav::-webkit-scrollbar-thumb {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 4px;
+            }
+
+            .main-nav::-webkit-scrollbar-thumb:hover {
+                background: rgba(255, 255, 255, 0.3);
+            }
+
+            /* All nav items stay in a row */
+            .main-nav>a,
             .nav-dropdown,
             .theme-toggle {
-                width: 100%;
+                flex: 0 0 auto;
+                width: auto;
             }
 
-            .main-nav > a,
+            .main-nav>a,
             .nav-dropdown-btn,
             .theme-toggle {
-                width: 100%;
-                height: 40px;
-                min-height: 40px;
-                padding: 6px 4px;
+                height: 38px;
+                min-height: 38px;
+                padding: 6px 12px;
                 background: rgba(255, 255, 255, 0.06);
                 text-align: center;
                 font-size: 12px;
                 white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
                 border-radius: 6px;
-                display: flex;
+                display: inline-flex;
                 align-items: center;
                 justify-content: center;
             }
 
-            .main-nav > a:hover,
+            .main-nav>a:hover,
             .nav-dropdown-btn:hover,
             .theme-toggle:hover {
                 background: rgba(255, 255, 255, 0.12);
             }
 
-            /* Dropdown buttons take full width */
+            /* Dropdown buttons stay inline */
             .nav-dropdown {
+                flex: 0 0 auto;
                 position: relative;
             }
 
             .nav-dropdown-btn {
-                width: 100% !important;
+                width: auto !important;
             }
 
+            /* Dropdown content - floating on mobile (not static) */
             .nav-dropdown-content {
                 display: none;
-                position: static;
-                width: 100%;
-                margin-top: 4px;
-                padding: 4px;
+                position: absolute;
+                top: calc(100% + 4px);
+                left: 0;
+                min-width: 180px;
+                padding: 5px;
                 background: #ffffff;
                 border: 1px solid #e2e8f0;
                 border-radius: 6px;
-                box-shadow: none;
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+                z-index: 2000;
             }
 
             [data-theme="dark"] .nav-dropdown-content {
@@ -523,7 +551,7 @@
                 border-color: #334155;
             }
 
-            .nav-dropdown.open > .nav-dropdown-content {
+            .nav-dropdown.open>.nav-dropdown-content {
                 display: flex;
                 flex-direction: column;
             }
@@ -531,11 +559,11 @@
             .nav-dropdown-content a {
                 min-height: 38px;
                 color: #1e293b;
-                justify-content: center;
-                text-align: center;
+                justify-content: flex-start;
+                text-align: left;
                 white-space: nowrap;
                 font-size: 12px;
-                padding: 8px 12px;
+                padding: 8px 14px;
             }
 
             [data-theme="dark"] .nav-dropdown-content a {
@@ -556,9 +584,17 @@
                 margin-left: 0;
             }
 
+            /* Prevent page scroll from nav scroll */
             .main-content {
                 padding: 16px 10px 30px;
                 overflow-x: hidden;
+                width: 100%;
+            }
+
+            /* Ensure no horizontal scroll on body */
+            body {
+                overflow-x: hidden;
+                width: 100%;
             }
         }
 
@@ -567,24 +603,24 @@
            ============================================================ */
 
         @media (max-width: 480px) {
-            .main-nav {
-                grid-template-columns: 1fr 1fr;
-                gap: 4px;
-            }
-
-            .main-nav > a,
+            .main-nav>a,
             .nav-dropdown-btn,
             .theme-toggle {
                 font-size: 11px;
-                padding: 5px 3px;
-                height: 36px;
-                min-height: 36px;
+                padding: 5px 10px;
+                height: 34px;
+                min-height: 34px;
             }
 
             .account-button {
                 font-size: 13px;
                 height: 38px;
                 min-height: 38px;
+            }
+
+            .main-nav {
+                gap: 4px;
+                padding: 2px 0 6px 0;
             }
         }
 
@@ -593,8 +629,13 @@
            ============================================================ */
 
         @media (max-width: 350px) {
-            .main-nav {
-                grid-template-columns: 1fr;
+            .main-nav>a,
+            .nav-dropdown-btn,
+            .theme-toggle {
+                font-size: 10px;
+                padding: 4px 8px;
+                height: 32px;
+                min-height: 32px;
             }
         }
     </style>
@@ -650,7 +691,7 @@
                 </div>
             </div>
 
-            <!-- Main Navigation -->
+            <!-- Main Navigation - SCROLLABLE on mobile -->
             <nav class="main-nav">
 
                 <a href="{% url 'dashboard' %}">Dashboard</a>
