@@ -21,19 +21,23 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY
 # =============================================================================
 
-SECRET_KEY = os.environ.get(
-    "DJANGO_SECRET_KEY",
-    "django-insecure-sh@kq%y4av7+=2&50pps3cjv4g__hhd*h%kjznh9q22^3x%tit"
-)
+SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError("DJANGO_SECRET_KEY environment variable is required")
 
-DEBUG = os.environ.get(
-    "DJANGO_DEBUG",
-    "False"
-).lower() == "true"
+DEBUG = os.environ.get("DJANGO_DEBUG", "False").lower() == "true"
 
-# Accept requests regardless of hostname/IP.
-# This is intentionally unrestricted for this deployment.
+# Accept all hosts (home server with public IP / dynamic DNS).
+# Tighten later if you get a fixed domain.
 ALLOWED_HOSTS = ["*"]
+
+# CSRF trusted origins (required when using HTTPS + reverse proxy)
+# Add your public IP and any domain you use.
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip()
+]
 
 
 # =============================================================================
@@ -113,6 +117,9 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
+        "OPTIONS": {
+            "timeout": 20,  # helps under concurrent writes
+        },
     }
 }
 
@@ -123,28 +130,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "UserAttributeSimilarityValidator"
-        ),
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "MinimumLengthValidator"
-        ),
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "CommonPasswordValidator"
-        ),
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        "NAME": (
-            "django.contrib.auth.password_validation."
-            "NumericPasswordValidator"
-        ),
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
@@ -154,11 +149,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # =============================================================================
 
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -166,21 +158,16 @@ USE_TZ = True
 # STATIC FILES
 # =============================================================================
 
-STATIC_URL = "static/"
-
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
-STATICFILES_STORAGE = (
-    "whitenoise.storage.CompressedManifestStaticFilesStorage"
-)
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 
 # =============================================================================
 # MEDIA FILES
 # =============================================================================
 
-MEDIA_URL = "media/"
-
+MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 
@@ -189,38 +176,29 @@ MEDIA_ROOT = BASE_DIR / "media"
 # =============================================================================
 
 LOGIN_URL = "/accounts/login/"
-
 LOGIN_REDIRECT_URL = "/"
-
 LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 
 # =============================================================================
-# SECURITY SETTINGS
+# SECURITY SETTINGS (production)
 # =============================================================================
 
 if not DEBUG:
-
-    # Nginx terminates HTTPS and forwards the original protocol.
-    SECURE_PROXY_SSL_HEADER = (
-        "HTTP_X_FORWARDED_PROTO",
-        "https",
-    )
+    # Nginx terminates HTTPS and sets X-Forwarded-Proto
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
     SECURE_SSL_REDIRECT = True
-
     SESSION_COOKIE_SECURE = True
-
     CSRF_COOKIE_SECURE = True
 
     SECURE_BROWSER_XSS_FILTER = True
-
     SECURE_CONTENT_TYPE_NOSNIFF = True
-
     X_FRAME_OPTIONS = "DENY"
 
     SECURE_HSTS_SECONDS = 31536000
-
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-
     SECURE_HSTS_PRELOAD = True
+
+    # Recommended extra hardening
+    SECURE_REFERRER_POLICY = "same-origin"
