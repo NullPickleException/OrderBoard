@@ -22,7 +22,7 @@
         })();
     </script>
 
-    <link rel="stylesheet" href="{% static 'orderboard/css/style.css' %}?v=7">
+    <link rel="stylesheet" href="{% static 'orderboard/css/style.css' %}?v=8">
     {% block extra_css %}{% endblock %}
 
     <style>
@@ -523,7 +523,7 @@
             }
 
             /* ==========================================================
-               DROPDOWN - OVERLAY ON MOBILE (does NOT push buttons)
+               DROPDOWN - OVERLAY ON MOBILE (opens DOWNWARD)
                ========================================================== */
             .nav-dropdown {
                 flex: 0 0 auto;
@@ -535,7 +535,7 @@
                 width: auto !important;
             }
 
-            /* Dropdown content - OVERLAY (position absolute) */
+            /* Dropdown content - OVERLAY (opens downward) */
             .nav-dropdown-content {
                 display: none;
                 position: absolute;
@@ -550,6 +550,9 @@
                 box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
                 z-index: 9999;
                 overflow: hidden;
+                /* Ensure it opens downward */
+                max-height: 300px;
+                overflow-y: auto;
             }
 
             [data-theme="dark"] .nav-dropdown-content {
@@ -593,7 +596,7 @@
                 transform: rotate(180deg);
             }
 
-            /* Fix for dropdown positioning on right side */
+            /* Fix for dropdown positioning on right side - opens downward still */
             .nav-dropdown:last-child .nav-dropdown-content,
             .nav-dropdown:nth-last-child(2) .nav-dropdown-content {
                 left: auto;
