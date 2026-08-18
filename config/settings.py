@@ -28,15 +28,12 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get(
     "DJANGO_DEBUG",
-    "True"
+    "False"
 ).lower() == "true"
 
-# Accept requests regardless of which server IP/hostname is being used.
-# You can restrict this later through DJANGO_ALLOWED_HOSTS.
-ALLOWED_HOSTS = os.environ.get(
-    "DJANGO_ALLOWED_HOSTS",
-    "*"
-).split(",")
+# Accept requests regardless of hostname/IP.
+# This is intentionally unrestricted for this deployment.
+ALLOWED_HOSTS = ["*"]
 
 
 # =============================================================================
@@ -203,6 +200,12 @@ LOGOUT_REDIRECT_URL = "/accounts/login/"
 # =============================================================================
 
 if not DEBUG:
+
+    # Nginx terminates HTTPS and forwards the original protocol.
+    SECURE_PROXY_SSL_HEADER = (
+        "HTTP_X_FORWARDED_PROTO",
+        "https",
+    )
 
     SECURE_SSL_REDIRECT = True
 
