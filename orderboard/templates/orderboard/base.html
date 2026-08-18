@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}OrderBoard{% endblock %}</title>
 
-    <!-- Theme (runs before CSS to avoid flash) -->
+    <!-- Theme -->
     <script>
         (function () {
             try {
@@ -24,6 +24,581 @@
 
     <link rel="stylesheet" href="{% static 'orderboard/css/style.css' %}?v=6">
     {% block extra_css %}{% endblock %}
+
+    <style>
+        /* ============================================================
+           STANDALONE HEADER STYLES
+           ============================================================ */
+
+        /* Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background: var(--bg-main, #f1f5f9);
+            color: var(--text-main, #1e293b);
+        }
+
+        /* Header Container */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: #0f172a;
+            color: white;
+            border-bottom: 1px solid #1e293b;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        .header-inner {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            min-height: 64px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+
+        /* Logo */
+        .site-title {
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        .site-title a {
+            display: block;
+            color: white;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.4px;
+            text-decoration: none;
+        }
+
+        .site-title a:hover {
+            color: white;
+        }
+
+        /* ============================================================
+           ACCOUNT DROPDOWN
+           ============================================================ */
+
+        .header-account {
+            margin-left: auto;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .account-dropdown {
+            position: relative;
+        }
+
+        .account-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            height: 38px;
+            padding: 0 12px;
+            border: 0;
+            border-radius: 6px;
+            background: transparent;
+            color: #cbd5e1;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.15s ease, color 0.15s ease;
+            white-space: nowrap;
+        }
+
+        .account-button:hover {
+            background: #1e293b;
+            color: white;
+        }
+
+        .account-icon {
+            font-size: 16px;
+        }
+
+        .account-name {
+            white-space: nowrap;
+        }
+
+        .dropdown-arrow {
+            margin-left: 5px;
+            font-size: 11px;
+            transition: transform 0.15s ease;
+        }
+
+        .account-dropdown-content {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            min-width: 210px;
+            padding: 5px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
+            z-index: 3000;
+        }
+
+        [data-theme="dark"] .account-dropdown-content {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        .account-dropdown-content.open {
+            display: block;
+        }
+
+        .account-dropdown-header {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 4px;
+        }
+
+        [data-theme="dark"] .account-dropdown-header {
+            border-color: #334155;
+        }
+
+        .account-dropdown-header strong {
+            display: block;
+            font-size: 14px;
+            color: #0f172a;
+        }
+
+        [data-theme="dark"] .account-dropdown-header strong {
+            color: #f8fafc;
+        }
+
+        .account-dropdown-header span {
+            display: block;
+            margin-top: 2px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .account-dropdown-divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 4px 0;
+        }
+
+        [data-theme="dark"] .account-dropdown-divider {
+            background: #334155;
+        }
+
+        .account-dropdown-content a {
+            display: block;
+            padding: 9px 12px;
+            border-radius: 6px;
+            color: #1e293b;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        [data-theme="dark"] .account-dropdown-content a {
+            color: #e2e8f0;
+        }
+
+        .account-dropdown-content a:hover {
+            background: #f8fafc;
+            color: #2563eb;
+        }
+
+        [data-theme="dark"] .account-dropdown-content a:hover {
+            background: #273449;
+            color: #60a5fa;
+        }
+
+        .account-logout-button {
+            width: 100%;
+            padding: 9px 12px;
+            border: 0;
+            border-radius: 6px;
+            background: transparent;
+            color: #dc2626;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .account-logout-button:hover {
+            background: #fee2e2;
+        }
+
+        [data-theme="dark"] .account-logout-button:hover {
+            background: #7f1d1d;
+        }
+
+        /* ============================================================
+           MAIN NAV - DESKTOP (horizontal)
+           ============================================================ */
+
+        .main-nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+
+        .main-nav > a,
+        .nav-dropdown-btn,
+        .theme-toggle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 38px;
+            min-height: 38px;
+            padding: 0 12px;
+            border: 0;
+            border-radius: 6px;
+            background: transparent;
+            color: #cbd5e1;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            line-height: 1;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .main-nav > a:hover,
+        .nav-dropdown-btn:hover,
+        .theme-toggle:hover {
+            background: #1e293b;
+            color: white;
+        }
+
+        .login-nav-button {
+            background: #2563eb !important;
+            color: #ffffff !important;
+        }
+
+        .login-nav-button:hover {
+            background: #1d4ed8 !important;
+            color: #ffffff !important;
+        }
+
+        /* ============================================================
+           DROPDOWN
+           ============================================================ */
+
+        .nav-dropdown {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .nav-dropdown-btn {
+            width: auto;
+        }
+
+        .nav-dropdown-content {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            min-width: 190px;
+            padding: 5px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.18);
+            overflow: hidden;
+            z-index: 2000;
+        }
+
+        [data-theme="dark"] .nav-dropdown-content {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        .nav-dropdown.open > .nav-dropdown-content {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .nav-dropdown-content a {
+            display: flex;
+            align-items: center;
+            min-height: 40px;
+            padding: 9px 12px;
+            border-radius: 6px;
+            color: #1e293b;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: background-color 0.15s ease, color 0.15s ease;
+            text-decoration: none;
+        }
+
+        [data-theme="dark"] .nav-dropdown-content a {
+            color: #e2e8f0;
+        }
+
+        .nav-dropdown-content a:hover {
+            background: #f8fafc;
+            color: #2563eb;
+        }
+
+        [data-theme="dark"] .nav-dropdown-content a:hover {
+            background: #273449;
+            color: #60a5fa;
+        }
+
+        .nav-dropdown.open .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* ============================================================
+           THEME TOGGLE
+           ============================================================ */
+
+        .theme-toggle {
+            margin-left: 4px;
+        }
+
+        /* ============================================================
+           MAIN CONTENT
+           ============================================================ */
+
+        .main-content {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px 60px;
+            overflow-x: hidden;
+        }
+
+        /* ============================================================
+           MOBILE RESPONSIVE
+           ============================================================ */
+
+        @media (max-width: 700px) {
+            .header-inner {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                padding: 12px 14px;
+                min-height: auto;
+            }
+
+            .site-title {
+                text-align: center;
+                order: 0;
+            }
+
+            .site-title a {
+                font-size: 20px;
+            }
+
+            /* Account dropdown - full width on top */
+            .header-account {
+                order: 1;
+                width: 100%;
+                margin-left: 0;
+            }
+
+            .account-dropdown {
+                width: 100%;
+            }
+
+            .account-button {
+                width: 100%;
+                justify-content: center;
+                background: rgba(255, 255, 255, 0.06);
+                height: 40px;
+                min-height: 40px;
+                font-size: 14px;
+            }
+
+            .account-button:hover {
+                background: rgba(255, 255, 255, 0.12);
+            }
+
+            .account-dropdown-content {
+                position: static;
+                width: 100%;
+                margin-top: 4px;
+                box-shadow: none;
+                background: #ffffff !important;
+            }
+
+            [data-theme="dark"] .account-dropdown-content {
+                background: #1e293b !important;
+            }
+
+            .account-dropdown-content a {
+                text-align: center;
+                color: #1e293b !important;
+            }
+
+            [data-theme="dark"] .account-dropdown-content a {
+                color: #e2e8f0 !important;
+            }
+
+            .account-logout-button {
+                text-align: center;
+            }
+
+            /* ==========================================================
+               MAIN NAV - GRID LAYOUT (2 columns like a table)
+               ========================================================== */
+            .main-nav {
+                order: 2;
+                width: 100%;
+                margin-left: 0;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 5px;
+                flex-shrink: 0;
+            }
+
+            /* All nav items fill their grid cells */
+            .main-nav > a,
+            .nav-dropdown,
+            .theme-toggle {
+                width: 100%;
+            }
+
+            .main-nav > a,
+            .nav-dropdown-btn,
+            .theme-toggle {
+                width: 100%;
+                height: 40px;
+                min-height: 40px;
+                padding: 6px 4px;
+                background: rgba(255, 255, 255, 0.06);
+                text-align: center;
+                font-size: 12px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                border-radius: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .main-nav > a:hover,
+            .nav-dropdown-btn:hover,
+            .theme-toggle:hover {
+                background: rgba(255, 255, 255, 0.12);
+            }
+
+            /* Dropdown buttons take full width */
+            .nav-dropdown {
+                position: relative;
+            }
+
+            .nav-dropdown-btn {
+                width: 100% !important;
+            }
+
+            .nav-dropdown-content {
+                display: none;
+                position: static;
+                width: 100%;
+                margin-top: 4px;
+                padding: 4px;
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
+                border-radius: 6px;
+                box-shadow: none;
+            }
+
+            [data-theme="dark"] .nav-dropdown-content {
+                background: #1e293b;
+                border-color: #334155;
+            }
+
+            .nav-dropdown.open > .nav-dropdown-content {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .nav-dropdown-content a {
+                min-height: 38px;
+                color: #1e293b;
+                justify-content: center;
+                text-align: center;
+                white-space: nowrap;
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+
+            [data-theme="dark"] .nav-dropdown-content a {
+                color: #e2e8f0;
+            }
+
+            .nav-dropdown-content a:hover {
+                background: #f8fafc;
+                color: #2563eb;
+            }
+
+            [data-theme="dark"] .nav-dropdown-content a:hover {
+                background: #273449;
+                color: #60a5fa;
+            }
+
+            .theme-toggle {
+                margin-left: 0;
+            }
+
+            .main-content {
+                padding: 16px 10px 30px;
+                overflow-x: hidden;
+            }
+        }
+
+        /* ============================================================
+           SMALL PHONES (480px and below)
+           ============================================================ */
+
+        @media (max-width: 480px) {
+            .main-nav {
+                grid-template-columns: 1fr 1fr;
+                gap: 4px;
+            }
+
+            .main-nav > a,
+            .nav-dropdown-btn,
+            .theme-toggle {
+                font-size: 11px;
+                padding: 5px 3px;
+                height: 36px;
+                min-height: 36px;
+            }
+
+            .account-button {
+                font-size: 13px;
+                height: 38px;
+                min-height: 38px;
+            }
+        }
+
+        /* ============================================================
+           VERY SMALL PHONES (350px and below)
+           ============================================================ */
+
+        @media (max-width: 350px) {
+            .main-nav {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
 </head>
 
 <body>
@@ -241,4 +816,5 @@
     {% block extra_js %}{% endblock %}
 
 </body>
+
 </html>
