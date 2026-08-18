@@ -41,6 +41,40 @@
 
             {% if user.is_authenticated %}
 
+            <!-- Account (moved to top on mobile) -->
+            <div class="header-account">
+                <div class="account-dropdown">
+                    <button type="button" class="account-button" id="account-button" aria-expanded="false">
+                        <span class="account-icon">👤</span>
+                        <span class="account-name">{{ user.username }}</span>
+                        <span class="dropdown-arrow">▾</span>
+                    </button>
+
+                    <div class="account-dropdown-content" id="account-dropdown-content">
+                        <div class="account-dropdown-header">
+                            <strong>{{ user.username }}</strong>
+                            {% if user.email %}
+                                <span>{{ user.email }}</span>
+                            {% endif %}
+                        </div>
+
+                        {% if user.is_staff %}
+                            <div class="account-dropdown-divider"></div>
+                            <a href="{% url 'password_change' %}">Change Password</a>
+                            <div class="account-dropdown-divider"></div>
+                            <a href="/admin/">Administration</a>
+                        {% endif %}
+
+                        <div class="account-dropdown-divider"></div>
+
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="account-logout-button">Log Out</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <!-- Main Navigation -->
             <nav class="main-nav">
 
@@ -82,40 +116,6 @@
                 </button>
 
             </nav>
-
-            <!-- Account (now on the right) -->
-            <div class="header-account">
-                <div class="account-dropdown">
-                    <button type="button" class="account-button" id="account-button" aria-expanded="false">
-                        <span class="account-icon">👤</span>
-                        <span class="account-name">{{ user.username }}</span>
-                        <span class="dropdown-arrow">▾</span>
-                    </button>
-
-                    <div class="account-dropdown-content" id="account-dropdown-content">
-                        <div class="account-dropdown-header">
-                            <strong>{{ user.username }}</strong>
-                            {% if user.email %}
-                                <span>{{ user.email }}</span>
-                            {% endif %}
-                        </div>
-
-                        {% if user.is_staff %}
-                            <div class="account-dropdown-divider"></div>
-                            <a href="{% url 'password_change' %}">Change Password</a>
-                            <div class="account-dropdown-divider"></div>
-                            <a href="/admin/">Administration</a>
-                        {% endif %}
-
-                        <div class="account-dropdown-divider"></div>
-
-                        <form method="post" action="{% url 'logout' %}">
-                            {% csrf_token %}
-                            <button type="submit" class="account-logout-button">Log Out</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
 
             {% else %}
 
