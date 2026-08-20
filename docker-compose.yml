@@ -2,10 +2,18 @@ services:
   orderboard:
     build: .
     container_name: orderboard
+    restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"   # only accessible from localhost (Nginx will proxy)
     env_file:
       - .env
     volumes:
       - ./db.sqlite3:/app/db.sqlite3
       - ./media:/app/media
+      - ./staticfiles:/app/staticfiles
+    # Optional: resource limits for a home PC
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: "1.5"
+    #       memory: 1G
