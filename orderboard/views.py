@@ -79,14 +79,24 @@ def dashboard(request):
     overdue_orders = (
         orders
         .filter(deadline__lt=now)
-        .exclude(status=Order.Status.DONE)
+        .exclude(
+            status__in=[
+                Order.Status.DONE,
+                Order.Status.CANCELED,
+            ]
+        )
         .order_by("deadline")[:10]
     )
 
     upcoming_orders = (
         orders
         .filter(deadline__gte=now)
-        .exclude(status=Order.Status.DONE)
+        .exclude(
+            status__in=[
+                Order.Status.DONE,
+                Order.Status.CANCELED,
+            ]
+        )
         .order_by("deadline")[:10]
     )
 
@@ -145,6 +155,7 @@ def dashboard(request):
             "order__customer",
         )
         .exclude(status=Shipping.Status.DELIVERED)
+        .exclude(order__status=Order.Status.CANCELED)
         .order_by("order__deadline")[:10]
     )
 
@@ -155,6 +166,7 @@ def dashboard(request):
             "order__customer",
         )
         .filter(status=Shipping.Status.NOT_SHIPPED)
+        .exclude(order__status=Order.Status.CANCELED)
         .order_by("order__deadline")
     )
 
@@ -165,6 +177,7 @@ def dashboard(request):
             "order__customer",
         )
         .filter(status=Shipping.Status.PACKAGED)
+        .exclude(order__status=Order.Status.CANCELED)
         .order_by("order__deadline")
     )
 
@@ -175,6 +188,7 @@ def dashboard(request):
             "order__customer",
         )
         .filter(status=Shipping.Status.SHIPPED)
+        .exclude(order__status=Order.Status.CANCELED)
         .order_by("order__deadline")
     )
 
@@ -185,6 +199,7 @@ def dashboard(request):
             "order__customer",
         )
         .filter(status=Shipping.Status.DELIVERED)
+        .exclude(order__status=Order.Status.CANCELED)
         .order_by("-delivered_at")
     )
 
@@ -223,7 +238,7 @@ def dashboard(request):
         "packaged_orders": packaged_orders,
         "shipped_orders": shipped_orders,
         "delivered_orders": delivered_orders,
-        
+
         "now": now,
     }
 
@@ -232,8 +247,9 @@ def dashboard(request):
         "orderboard/dashboard.html",
         context,
     )
-
-
+    
+    
+    
 # =============================================================================
 # ORDER VIEWS
 # =============================================================================
@@ -241,7 +257,6 @@ def dashboard(request):
 # -----------------------------------------------------------------------------
 # Order List
 # -----------------------------------------------------------------------------
-
 @login_required
 def order_list(request):
     orders = (
@@ -359,6 +374,12 @@ def order_list(request):
         orders = (
             orders
             .filter(deadline__lt=now)
+            .exclude(
+                status__in=[
+                    Order.Status.DONE,
+                    Order.Status.CANCELED,
+                ]
+            )
             .exclude(shipping__status=Shipping.Status.DELIVERED)
         )
 
@@ -366,6 +387,12 @@ def order_list(request):
         orders = (
             orders
             .filter(deadline__gte=now)
+            .exclude(
+                status__in=[
+                    Order.Status.DONE,
+                    Order.Status.CANCELED,
+                ]
+            )
             .exclude(shipping__status=Shipping.Status.DELIVERED)
         )
 
@@ -383,23 +410,31 @@ def order_list(request):
         "",
     ).strip()
 
-    if payment_status in ["not_paid", "partially_paid", "fully_paid"]:
-        # Convert to list for Python filtering
+    if payment_status in [
+        "not_paid",
+        "partially_paid",
+        "fully_paid",
+    ]:
         orders_list = list(orders)
-        
+
         if payment_status == "not_paid":
             orders = [
-                order for order in orders_list
+                order
+                for order in orders_list
                 if order.total_paid() <= 0
             ]
+
         elif payment_status == "partially_paid":
             orders = [
-                order for order in orders_list
+                order
+                for order in orders_list
                 if 0 < order.total_paid() < order.total_price
             ]
+
         elif payment_status == "fully_paid":
             orders = [
-                order for order in orders_list
+                order
+                for order in orders_list
                 if order.total_paid() >= order.total_price
             ]
 
@@ -413,21 +448,52 @@ def order_list(request):
     ).strip()
 
     if isinstance(orders, list):
-        # If orders is a list (after payment filtering), sort in Python
+
         if sort == "newest":
-            orders.sort(key=lambda x: x.created_at, reverse=True)
+            orders.sort(
+                key=lambda x: x.created_at,
+                reverse=True,
+            )
+
         elif sort == "oldest":
-            orders.sort(key=lambda x: x.created_at)
+            orders.sort(
+                key=lambda x: x.created_at
+            )
+
         elif sort == "deadline_soonest":
-            orders.sort(key=lambda x: x.deadline if x.deadline else timezone.datetime.max.replace(tzinfo=timezone.utc))
+            orders.sort(
+                key=lambda x:
+                    x.deadline
+                    if x.deadline
+                    else timezone.datetime.max.replace(
+                        tzinfo=timezone.utc
+                    )
+            )
+
         elif sort == "deadline_latest":
-            orders.sort(key=lambda x: x.deadline if x.deadline else timezone.datetime.min.replace(tzinfo=timezone.utc), reverse=True)
+            orders.sort(
+                key=lambda x:
+                    x.deadline
+                    if x.deadline
+                    else timezone.datetime.min.replace(
+                        tzinfo=timezone.utc
+                    ),
+                reverse=True,
+            )
+
         elif sort == "price_high":
-            orders.sort(key=lambda x: x.total_price, reverse=True)
+            orders.sort(
+                key=lambda x: x.total_price,
+                reverse=True,
+            )
+
         elif sort == "price_low":
-            orders.sort(key=lambda x: x.total_price)
+            orders.sort(
+                key=lambda x: x.total_price
+            )
+
     else:
-        # If orders is still a QuerySet, use ORM ordering
+
         sort_options = {
             "newest": "-created_at",
             "oldest": "created_at",
@@ -436,7 +502,7 @@ def order_list(request):
             "price_high": "-total_price",
             "price_low": "total_price",
         }
-        
+
         orders = orders.order_by(
             sort_options.get(
                 sort,
@@ -468,7 +534,7 @@ def order_list(request):
         "payment_status": payment_status,
 
         "sort": sort,
-        
+
         "now": timezone.now(),
     }
 
@@ -477,8 +543,8 @@ def order_list(request):
         "orderboard/orders/list.html",
         context,
     )
-
-
+    
+    
 # -----------------------------------------------------------------------------
 # Order Detail
 # -----------------------------------------------------------------------------
@@ -1058,13 +1124,19 @@ def shipping_list(request):
             "order",
             "order__customer",
         )
+        .exclude(
+            order__status=Order.Status.CANCELED
+        )
     )
 
     # =========================================================================
     # Search
     # =========================================================================
 
-    search = request.GET.get("search", "").strip()
+    search = request.GET.get(
+        "search",
+        "",
+    ).strip()
 
     if search:
         shipments = shipments.filter(
@@ -1078,7 +1150,10 @@ def shipping_list(request):
     # Status Filter
     # =========================================================================
 
-    status = request.GET.get("status", "").strip()
+    status = request.GET.get(
+        "status",
+        "",
+    ).strip()
 
     if status:
         shipments = shipments.filter(
@@ -1089,7 +1164,10 @@ def shipping_list(request):
     # Sorting
     # =========================================================================
 
-    sort = request.GET.get("sort", "newest").strip()
+    sort = request.GET.get(
+        "sort",
+        "newest",
+    ).strip()
 
     sort_options = {
         "newest": "-order__created_at",
@@ -1100,7 +1178,10 @@ def shipping_list(request):
     }
 
     shipments = shipments.order_by(
-        sort_options.get(sort, "-order__created_at")
+        sort_options.get(
+            sort,
+            "-order__created_at",
+        )
     )
 
     # =========================================================================
@@ -1680,12 +1761,14 @@ def customer_delete(request, id):
 
 @login_required
 def printing_list(request):
-
     shipments = (
         Shipping.objects
         .select_related(
             "order",
             "order__customer",
+        )
+        .exclude(
+            order__status=Order.Status.CANCELED
         )
         .order_by(
             "order__deadline",
@@ -1709,9 +1792,8 @@ def printing_list(request):
         "orderboard/printing/list.html",
         context,
     )
-    
-    
-    # =============================================================================
+
+
 # EXPORT VIEWS
 # =============================================================================
 
@@ -1956,14 +2038,47 @@ def _export_orders_sheet(wb, request):
     if deadline_to:
         orders = orders.filter(deadline__date__lte=deadline_to)
     
-    deadline_state = request.POST.get("order_deadline_state", "").strip()
+    deadline_state = request.POST.get(
+        "order_deadline_state",
+        "",
+    ).strip()
+    
     now = timezone.now()
+    
     if deadline_state == "overdue":
-        orders = orders.filter(deadline__lt=now).exclude(shipping__status=Shipping.Status.DELIVERED)
+        orders = (
+            orders
+            .filter(deadline__lt=now)
+            .exclude(
+                status__in=[
+                    Order.Status.DONE,
+                    Order.Status.CANCELED,
+                ]
+            )
+            .exclude(
+                shipping__status=Shipping.Status.DELIVERED
+            )
+        )
+    
     elif deadline_state == "upcoming":
-        orders = orders.filter(deadline__gte=now).exclude(shipping__status=Shipping.Status.DELIVERED)
+        orders = (
+            orders
+            .filter(deadline__gte=now)
+            .exclude(
+                status__in=[
+                    Order.Status.DONE,
+                    Order.Status.CANCELED,
+                ]
+            )
+            .exclude(
+                shipping__status=Shipping.Status.DELIVERED
+            )
+        )
+    
     elif deadline_state == "no_deadline":
-        orders = orders.filter(deadline__isnull=True)
+        orders = orders.filter(
+            deadline__isnull=True
+        )
     
     payment_status = request.POST.get("order_payment_status", "").strip()
     if payment_status in ["not_paid", "partially_paid", "fully_paid"]:
