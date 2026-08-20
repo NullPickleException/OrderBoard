@@ -57,6 +57,7 @@ class Order(models.Model):
         PRINT = "print", "Print Queue"
         PAINT = "paint", "Paint Queue"
         DONE = "done", "Done"
+        CANCELED = "canceled", "Canceled"
 
     # -------------------------------------------------------------------------
     # Fields
@@ -100,12 +101,16 @@ class Order(models.Model):
     # -------------------------------------------------------------------------
     # Display Helpers
     # -------------------------------------------------------------------------
-
     def is_overdue(self):
         if not self.deadline:
             return False
-        if self.status == self.Status.DONE:
+    
+        if self.status in [
+            self.Status.DONE,
+            self.Status.CANCELED,
+        ]:
             return False
+    
         from django.utils import timezone
         return self.deadline < timezone.now()
 
