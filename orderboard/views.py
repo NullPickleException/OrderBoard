@@ -42,11 +42,7 @@ from .models import (
 def dashboard(request):
     now = timezone.now()
 
-    orders = (
-        Order.objects
-        .select_related("customer")
-        .prefetch_related("shipping", "payments")
-    )
+    orders = Order.objects.select_related("customer")
 
     # =========================================================================
     # ORDER QUEUES
@@ -83,24 +79,14 @@ def dashboard(request):
     overdue_orders = (
         orders
         .filter(deadline__lt=now)
-        .exclude(
-            status__in=[
-                Order.Status.DONE,
-                Order.Status.CANCELED,
-            ]
-        )
+        .exclude(status=Order.Status.DONE)
         .order_by("deadline")[:10]
     )
 
     upcoming_orders = (
         orders
         .filter(deadline__gte=now)
-        .exclude(
-            status__in=[
-                Order.Status.DONE,
-                Order.Status.CANCELED,
-            ]
-        )
+        .exclude(status=Order.Status.DONE)
         .order_by("deadline")[:10]
     )
 
@@ -138,7 +124,6 @@ def dashboard(request):
             "order",
             "order__customer",
         )
-        .prefetch_related("order__shipping")
         .order_by("-paid_at")[:10]
     )
 
@@ -160,7 +145,6 @@ def dashboard(request):
             "order__customer",
         )
         .exclude(status=Shipping.Status.DELIVERED)
-        .exclude(order__status=Order.Status.CANCELED)
         .order_by("order__deadline")[:10]
     )
 
@@ -171,7 +155,6 @@ def dashboard(request):
             "order__customer",
         )
         .filter(status=Shipping.Status.NOT_SHIPPED)
-        .exclude(order__status=Order.Status.CANCELED)
         .order_by("order__deadline")
     )
 
@@ -182,7 +165,6 @@ def dashboard(request):
             "order__customer",
         )
         .filter(status=Shipping.Status.PACKAGED)
-        .exclude(order__status=Order.Status.CANCELED)
         .order_by("order__deadline")
     )
 
@@ -193,7 +175,6 @@ def dashboard(request):
             "order__customer",
         )
         .filter(status=Shipping.Status.SHIPPED)
-        .exclude(order__status=Order.Status.CANCELED)
         .order_by("order__deadline")
     )
 
@@ -204,7 +185,6 @@ def dashboard(request):
             "order__customer",
         )
         .filter(status=Shipping.Status.DELIVERED)
-        .exclude(order__status=Order.Status.CANCELED)
         .order_by("-delivered_at")
     )
 
@@ -243,7 +223,7 @@ def dashboard(request):
         "packaged_orders": packaged_orders,
         "shipped_orders": shipped_orders,
         "delivered_orders": delivered_orders,
-
+        
         "now": now,
     }
 
@@ -252,9 +232,8 @@ def dashboard(request):
         "orderboard/dashboard.html",
         context,
     )
-    
-    
-    
+
+
 # =============================================================================
 # ORDER VIEWS
 # =============================================================================
@@ -262,6 +241,7 @@ def dashboard(request):
 # -----------------------------------------------------------------------------
 # Order List
 # -----------------------------------------------------------------------------
+
 @login_required
 def order_list(request):
     orders = (
@@ -379,12 +359,6 @@ def order_list(request):
         orders = (
             orders
             .filter(deadline__lt=now)
-            .exclude(
-                status__in=[
-                    Order.Status.DONE,
-                    Order.Status.CANCELED,
-                ]
-            )
             .exclude(shipping__status=Shipping.Status.DELIVERED)
         )
 
@@ -392,12 +366,6 @@ def order_list(request):
         orders = (
             orders
             .filter(deadline__gte=now)
-            .exclude(
-                status__in=[
-                    Order.Status.DONE,
-                    Order.Status.CANCELED,
-                ]
-            )
             .exclude(shipping__status=Shipping.Status.DELIVERED)
         )
 
@@ -415,31 +383,23 @@ def order_list(request):
         "",
     ).strip()
 
-    if payment_status in [
-        "not_paid",
-        "partially_paid",
-        "fully_paid",
-    ]:
+    if payment_status in ["not_paid", "partially_paid", "fully_paid"]:
+        # Convert to list for Python filtering
         orders_list = list(orders)
-
+        
         if payment_status == "not_paid":
             orders = [
-                order
-                for order in orders_list
+                order for order in orders_list
                 if order.total_paid() <= 0
             ]
-
         elif payment_status == "partially_paid":
             orders = [
-                order
-                for order in orders_list
+                order for order in orders_list
                 if 0 < order.total_paid() < order.total_price
             ]
-
         elif payment_status == "fully_paid":
             orders = [
-                order
-                for order in orders_list
+                order for order in orders_list
                 if order.total_paid() >= order.total_price
             ]
 
@@ -453,52 +413,21 @@ def order_list(request):
     ).strip()
 
     if isinstance(orders, list):
-
+        # If orders is a list (after payment filtering), sort in Python
         if sort == "newest":
-            orders.sort(
-                key=lambda x: x.created_at,
-                reverse=True,
-            )
-
+            orders.sort(key=lambda x: x.created_at, reverse=True)
         elif sort == "oldest":
-            orders.sort(
-                key=lambda x: x.created_at
-            )
-
+            orders.sort(key=lambda x: x.created_at)
         elif sort == "deadline_soonest":
-            orders.sort(
-                key=lambda x:
-                    x.deadline
-                    if x.deadline
-                    else timezone.datetime.max.replace(
-                        tzinfo=timezone.utc
-                    )
-            )
-
+            orders.sort(key=lambda x: x.deadline if x.deadline else timezone.datetime.max.replace(tzinfo=timezone.utc))
         elif sort == "deadline_latest":
-            orders.sort(
-                key=lambda x:
-                    x.deadline
-                    if x.deadline
-                    else timezone.datetime.min.replace(
-                        tzinfo=timezone.utc
-                    ),
-                reverse=True,
-            )
-
+            orders.sort(key=lambda x: x.deadline if x.deadline else timezone.datetime.min.replace(tzinfo=timezone.utc), reverse=True)
         elif sort == "price_high":
-            orders.sort(
-                key=lambda x: x.total_price,
-                reverse=True,
-            )
-
+            orders.sort(key=lambda x: x.total_price, reverse=True)
         elif sort == "price_low":
-            orders.sort(
-                key=lambda x: x.total_price
-            )
-
+            orders.sort(key=lambda x: x.total_price)
     else:
-
+        # If orders is still a QuerySet, use ORM ordering
         sort_options = {
             "newest": "-created_at",
             "oldest": "created_at",
@@ -507,7 +436,7 @@ def order_list(request):
             "price_high": "-total_price",
             "price_low": "total_price",
         }
-
+        
         orders = orders.order_by(
             sort_options.get(
                 sort,
@@ -539,7 +468,7 @@ def order_list(request):
         "payment_status": payment_status,
 
         "sort": sort,
-
+        
         "now": timezone.now(),
     }
 
@@ -548,8 +477,8 @@ def order_list(request):
         "orderboard/orders/list.html",
         context,
     )
-    
-    
+
+
 # -----------------------------------------------------------------------------
 # Order Detail
 # -----------------------------------------------------------------------------
@@ -557,7 +486,7 @@ def order_list(request):
 @login_required
 def order_detail(request, id):
     order = get_object_or_404(
-        Order.objects.select_related("customer").prefetch_related("shipping"),
+        Order.objects.select_related("customer"),
         id=id,
     )
 
@@ -848,6 +777,10 @@ def customer_search(request):
 # Payment List
 # -----------------------------------------------------------------------------
 
+# -----------------------------------------------------------------------------
+# Payment List
+# -----------------------------------------------------------------------------
+
 @login_required
 def payment_list(request):
 
@@ -1112,6 +1045,10 @@ def payment_delete(request, id):
 # Shipping List
 # -----------------------------------------------------------------------------
 
+# -----------------------------------------------------------------------------
+# Shipping List
+# -----------------------------------------------------------------------------
+
 @login_required
 def shipping_list(request):
 
@@ -1121,19 +1058,13 @@ def shipping_list(request):
             "order",
             "order__customer",
         )
-        .exclude(
-            order__status=Order.Status.CANCELED
-        )
     )
 
     # =========================================================================
     # Search
     # =========================================================================
 
-    search = request.GET.get(
-        "search",
-        "",
-    ).strip()
+    search = request.GET.get("search", "").strip()
 
     if search:
         shipments = shipments.filter(
@@ -1147,10 +1078,7 @@ def shipping_list(request):
     # Status Filter
     # =========================================================================
 
-    status = request.GET.get(
-        "status",
-        "",
-    ).strip()
+    status = request.GET.get("status", "").strip()
 
     if status:
         shipments = shipments.filter(
@@ -1161,10 +1089,7 @@ def shipping_list(request):
     # Sorting
     # =========================================================================
 
-    sort = request.GET.get(
-        "sort",
-        "newest",
-    ).strip()
+    sort = request.GET.get("sort", "newest").strip()
 
     sort_options = {
         "newest": "-order__created_at",
@@ -1175,10 +1100,7 @@ def shipping_list(request):
     }
 
     shipments = shipments.order_by(
-        sort_options.get(
-            sort,
-            "-order__created_at",
-        )
+        sort_options.get(sort, "-order__created_at")
     )
 
     # =========================================================================
@@ -1407,6 +1329,10 @@ def photo_delete(request, id):
 # Customer List
 # -----------------------------------------------------------------------------
 
+# -----------------------------------------------------------------------------
+# Customer List
+# -----------------------------------------------------------------------------
+
 @login_required
 def customer_list(request):
 
@@ -1572,7 +1498,6 @@ def customer_detail(request, id):
     orders = (
         customer.orders
         .select_related("customer")
-        .prefetch_related("shipping")
         .order_by("-created_at")
     )
 
@@ -1755,14 +1680,12 @@ def customer_delete(request, id):
 
 @login_required
 def printing_list(request):
+
     shipments = (
         Shipping.objects
         .select_related(
             "order",
             "order__customer",
-        )
-        .exclude(
-            order__status=Order.Status.CANCELED
         )
         .order_by(
             "order__deadline",
@@ -1786,8 +1709,9 @@ def printing_list(request):
         "orderboard/printing/list.html",
         context,
     )
-
-
+    
+    
+    # =============================================================================
 # EXPORT VIEWS
 # =============================================================================
 
@@ -1973,7 +1897,7 @@ def _apply_sheet_styling(ws, headers, data_rows):
             if col_idx - 1 < len(row_data):
                 cell_value = str(row_data[col_idx - 1])
                 if len(cell_value) > max_length:
-                    max_length = min(len(cell_value), 50)
+                    max_length = min(len(cell_value), 50)  # Cap at 50 characters
         
         ws.column_dimensions[get_column_letter(col_idx)].width = max_length + 2
     
@@ -1987,12 +1911,15 @@ def _apply_sheet_styling(ws, headers, data_rows):
 def _export_orders_sheet(wb, request):
     """Export orders data to Excel sheet."""
     
+    # Get selected fields
     selected_fields = request.POST.getlist("order_fields", [])
     if not selected_fields:
         selected_fields = ["id", "customer_name", "title", "status", "total_price", "deadline"]
     
+    # Build queryset with filters
     orders = Order.objects.select_related("customer").prefetch_related("payments")
     
+    # Apply filters (same as order_list view)
     search = request.POST.get("order_search", "").strip()
     if search:
         orders = orders.filter(
@@ -2031,15 +1958,10 @@ def _export_orders_sheet(wb, request):
     
     deadline_state = request.POST.get("order_deadline_state", "").strip()
     now = timezone.now()
-    
     if deadline_state == "overdue":
-        orders = orders.filter(deadline__lt=now).exclude(
-            status__in=[Order.Status.DONE, Order.Status.CANCELED]
-        ).exclude(shipping__status=Shipping.Status.DELIVERED)
+        orders = orders.filter(deadline__lt=now).exclude(shipping__status=Shipping.Status.DELIVERED)
     elif deadline_state == "upcoming":
-        orders = orders.filter(deadline__gte=now).exclude(
-            status__in=[Order.Status.DONE, Order.Status.CANCELED]
-        ).exclude(shipping__status=Shipping.Status.DELIVERED)
+        orders = orders.filter(deadline__gte=now).exclude(shipping__status=Shipping.Status.DELIVERED)
     elif deadline_state == "no_deadline":
         orders = orders.filter(deadline__isnull=True)
     
@@ -2053,6 +1975,7 @@ def _export_orders_sheet(wb, request):
         elif payment_status == "fully_paid":
             orders = [o for o in orders_list if o.total_paid() >= o.total_price]
     
+    # Define field mapping
     field_mapping = {
         "id": lambda o: o.id,
         "customer_name": lambda o: o.customer.name,
@@ -2074,18 +1997,35 @@ def _export_orders_sheet(wb, request):
         "updated_at": lambda o: o.updated_at.strftime("%Y-%m-%d %H:%M"),
     }
     
+    # Field labels for headers
     field_labels = {
-        "id": "Order ID", "customer_name": "Customer Name", "customer_phone": "Customer Phone",
-        "title": "Title", "description": "Description", "source": "Source", "status": "Status",
-        "order_received_at": "Received At", "deadline": "Deadline", "total_price": "Total Price",
-        "project_cost": "Project Cost", "cost_details": "Cost Details", "notes": "Notes",
-        "total_paid": "Total Paid", "remaining_balance": "Remaining Balance",
-        "payment_status": "Payment Status", "created_at": "Created At", "updated_at": "Updated At",
+        "id": "Order ID",
+        "customer_name": "Customer Name",
+        "customer_phone": "Customer Phone",
+        "title": "Title",
+        "description": "Description",
+        "source": "Source",
+        "status": "Status",
+        "order_received_at": "Received At",
+        "deadline": "Deadline",
+        "total_price": "Total Price",
+        "project_cost": "Project Cost",
+        "cost_details": "Cost Details",
+        "notes": "Notes",
+        "total_paid": "Total Paid",
+        "remaining_balance": "Remaining Balance",
+        "payment_status": "Payment Status",
+        "created_at": "Created At",
+        "updated_at": "Updated At",
     }
     
+    # Create sheet
     ws = wb.create_sheet("Orders")
+    
+    # Prepare headers
     headers = [field_labels[f] for f in selected_fields if f in field_mapping]
     
+    # Prepare data rows
     data_rows = []
     for order in orders:
         row = []
@@ -2097,26 +2037,33 @@ def _export_orders_sheet(wb, request):
                     row.append("")
         data_rows.append(row)
     
+    # Apply styling
     _apply_sheet_styling(ws, headers, data_rows)
 
 
 def _export_customers_sheet(wb, request):
     """Export customers data to Excel sheet."""
     
+    # Get selected fields
     selected_fields = request.POST.getlist("customer_fields", [])
     if not selected_fields:
         selected_fields = ["id", "name", "phone", "address", "order_count", "total_spent"]
     
+    # Build queryset with filters
     customers = Customer.objects.annotate(
         order_count=Count("orders", distinct=True),
         contact_count=Count("contacts", distinct=True),
     )
     
+    # Apply filters
     search = request.POST.get("customer_search", "").strip()
     if search:
         customers = customers.filter(
-            Q(name__icontains=search) | Q(phone__icontains=search) | Q(address__icontains=search)
-            | Q(postal_code__icontains=search) | Q(contacts__platform__icontains=search)
+            Q(name__icontains=search)
+            | Q(phone__icontains=search)
+            | Q(address__icontains=search)
+            | Q(postal_code__icontains=search)
+            | Q(contacts__platform__icontains=search)
             | Q(contacts__username__icontains=search)
         ).distinct()
     
@@ -2152,6 +2099,7 @@ def _export_customers_sheet(wb, request):
     if created_to:
         customers = customers.filter(created_at__date__lte=created_to)
     
+    # Define field mapping
     field_mapping = {
         "id": lambda c: c.id,
         "name": lambda c: c.name,
@@ -2165,15 +2113,27 @@ def _export_customers_sheet(wb, request):
         "updated_at": lambda c: c.updated_at.strftime("%Y-%m-%d %H:%M"),
     }
     
+    # Field labels for headers
     field_labels = {
-        "id": "Customer ID", "name": "Name", "phone": "Phone", "address": "Address",
-        "postal_code": "Postal Code", "order_count": "Order Count", "contact_count": "Contact Count",
-        "total_spent": "Total Spent", "created_at": "Created At", "updated_at": "Updated At",
+        "id": "Customer ID",
+        "name": "Name",
+        "phone": "Phone",
+        "address": "Address",
+        "postal_code": "Postal Code",
+        "order_count": "Order Count",
+        "contact_count": "Contact Count",
+        "total_spent": "Total Spent",
+        "created_at": "Created At",
+        "updated_at": "Updated At",
     }
     
+    # Create sheet
     ws = wb.create_sheet("Customers")
+    
+    # Prepare headers
     headers = [field_labels[f] for f in selected_fields if f in field_mapping]
     
+    # Prepare data rows
     data_rows = []
     for customer in customers:
         row = []
@@ -2185,22 +2145,28 @@ def _export_customers_sheet(wb, request):
                     row.append("")
         data_rows.append(row)
     
+    # Apply styling
     _apply_sheet_styling(ws, headers, data_rows)
 
 
 def _export_payments_sheet(wb, request):
     """Export payments data to Excel sheet."""
     
+    # Get selected fields
     selected_fields = request.POST.getlist("payment_fields", [])
     if not selected_fields:
         selected_fields = ["id", "order_title", "customer_name", "paid_amount", "paid_at"]
     
+    # Build queryset with filters
     payments = Payment.objects.select_related("order", "order__customer")
     
+    # Apply filters
     search = request.POST.get("payment_search", "").strip()
     if search:
         payments = payments.filter(
-            Q(order__title__icontains=search) | Q(order__customer__name__icontains=search) | Q(note__icontains=search)
+            Q(order__title__icontains=search)
+            | Q(order__customer__name__icontains=search)
+            | Q(note__icontains=search)
         )
     
     date_from = request.POST.get("payment_date_from", "").strip()
@@ -2211,6 +2177,7 @@ def _export_payments_sheet(wb, request):
     if date_to:
         payments = payments.filter(paid_at__date__lte=date_to)
     
+    # Define field mapping
     field_mapping = {
         "id": lambda p: p.id,
         "order_id": lambda p: p.order.id,
@@ -2221,14 +2188,24 @@ def _export_payments_sheet(wb, request):
         "paid_at": lambda p: p.paid_at.strftime("%Y-%m-%d %H:%M"),
     }
     
+    # Field labels for headers
     field_labels = {
-        "id": "Payment ID", "order_id": "Order ID", "order_title": "Order Title",
-        "customer_name": "Customer Name", "paid_amount": "Paid Amount", "note": "Note", "paid_at": "Paid At",
+        "id": "Payment ID",
+        "order_id": "Order ID",
+        "order_title": "Order Title",
+        "customer_name": "Customer Name",
+        "paid_amount": "Paid Amount",
+        "note": "Note",
+        "paid_at": "Paid At",
     }
     
+    # Create sheet
     ws = wb.create_sheet("Payments")
+    
+    # Prepare headers
     headers = [field_labels[f] for f in selected_fields if f in field_mapping]
     
+    # Prepare data rows
     data_rows = []
     for payment in payments:
         row = []
@@ -2240,29 +2217,36 @@ def _export_payments_sheet(wb, request):
                     row.append("")
         data_rows.append(row)
     
+    # Apply styling
     _apply_sheet_styling(ws, headers, data_rows)
 
 
 def _export_shipping_sheet(wb, request):
     """Export shipping data to Excel sheet."""
     
+    # Get selected fields
     selected_fields = request.POST.getlist("shipping_fields", [])
     if not selected_fields:
         selected_fields = ["id", "order_title", "customer_name", "status", "recipient_name", "tracking_id"]
     
+    # Build queryset with filters
     shipments = Shipping.objects.select_related("order", "order__customer")
     
+    # Apply filters
     search = request.POST.get("shipping_search", "").strip()
     if search:
         shipments = shipments.filter(
-            Q(order__title__icontains=search) | Q(order__customer__name__icontains=search)
-            | Q(recipient_name__icontains=search) | Q(tracking_id__icontains=search)
+            Q(order__title__icontains=search)
+            | Q(order__customer__name__icontains=search)
+            | Q(recipient_name__icontains=search)
+            | Q(tracking_id__icontains=search)
         )
     
     status = request.POST.get("shipping_status", "").strip()
     if status:
         shipments = shipments.filter(status=status)
     
+    # Define field mapping
     field_mapping = {
         "id": lambda s: s.id,
         "order_id": lambda s: s.order.id,
@@ -2278,16 +2262,29 @@ def _export_shipping_sheet(wb, request):
         "delivered_at": lambda s: s.delivered_at.strftime("%Y-%m-%d %H:%M") if s.delivered_at else "",
     }
     
+    # Field labels for headers
     field_labels = {
-        "id": "Shipping ID", "order_id": "Order ID", "order_title": "Order Title",
-        "customer_name": "Customer Name", "status": "Status", "tracking_id": "Tracking ID",
-        "recipient_name": "Recipient Name", "address": "Address", "postal_code": "Postal Code",
-        "phone": "Phone", "shipped_at": "Shipped At", "delivered_at": "Delivered At",
+        "id": "Shipping ID",
+        "order_id": "Order ID",
+        "order_title": "Order Title",
+        "customer_name": "Customer Name",
+        "status": "Status",
+        "tracking_id": "Tracking ID",
+        "recipient_name": "Recipient Name",
+        "address": "Address",
+        "postal_code": "Postal Code",
+        "phone": "Phone",
+        "shipped_at": "Shipped At",
+        "delivered_at": "Delivered At",
     }
     
+    # Create sheet
     ws = wb.create_sheet("Shipping")
+    
+    # Prepare headers
     headers = [field_labels[f] for f in selected_fields if f in field_mapping]
     
+    # Prepare data rows
     data_rows = []
     for shipment in shipments:
         row = []
@@ -2299,4 +2296,5 @@ def _export_shipping_sheet(wb, request):
                     row.append("")
         data_rows.append(row)
     
+    # Apply styling
     _apply_sheet_styling(ws, headers, data_rows)
