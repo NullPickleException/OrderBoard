@@ -185,6 +185,7 @@
                     <th>Payment</th>
                     <th>Deadline</th>
                     <th>Received</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -256,12 +257,20 @@
                             {{ order.order_received_at|date:"Y-m-d"|default:"—" }}
                         </td>
 
+                        <td data-label="Actions">
+                            <a class="button" href="{% url 'order_edit' order.id %}">Edit</a>
+                            <form method="post" action="{% url 'order_delete' order.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this order?');">
+                                {% csrf_token %}
+                                <button type="submit" class="danger-button">Delete</button>
+                            </form>
+                        </td>
+
                     </tr>
 
                 {% empty %}
 
                     <tr>
-                        <td colspan="8" class="empty-state">
+                        <td colspan="9" class="empty-state">
                             No orders found matching your criteria.
                         </td>
                     </tr>
