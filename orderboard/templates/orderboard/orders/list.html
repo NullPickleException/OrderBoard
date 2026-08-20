@@ -191,7 +191,7 @@
             <tbody>
                 {% for order in orders %}
                     
-                    {% if order.shipping.status == 'delivered' %}
+                   {% if order.shipping and order.shipping.status == 'delivered' %}
                         <tr>
                     {% elif order.deadline and order.deadline < now %}
                         <tr class="overdue">
@@ -238,7 +238,7 @@
                         </td>
 
                         <td data-label="Deadline">
-                            {% if order.shipping.status == 'delivered' %}
+                           {% if order.shipping and order.shipping.status == 'delivered' %}
                                 {{ order.deadline|date:"Y-m-d"|default:"—" }}
                                 <span class="deadline-days status-delivered">
                                     (Delivered)
